@@ -6,17 +6,20 @@ import android.text.TextUtils;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.rxjava.CallBackWrapper;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.HeaderUtils;
 import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -40,11 +43,14 @@ public class CommonPresenter extends MvpBasePresenter<CommonView> implements ICo
      * 本次强制刷新过那下面的请求也一起刷新
      */
     private boolean isLoadMoreCleanCache = false;
+    private AddressHelper addressHelper;
 
-    public CommonPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider) {
+    @Inject
+    public CommonPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
         this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
         this.cacheProviders = cacheProviders;
         this.provider = provider;
+        this.addressHelper=addressHelper;
     }
 
     public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi mNoLimit91PornServiceApi) {
@@ -69,7 +75,7 @@ public class CommonPresenter extends MvpBasePresenter<CommonView> implements ICo
         DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(condition, page);
         EvictDynamicKey evictDynamicKey = new EvictDynamicKey(cleanCache || isLoadMoreCleanCache);
 
-        Observable<String> categoryPage = mNoLimit91PornServiceApi.getCategoryPage(category, viewType, page, m, HeaderUtils.getIndexHeader());
+        Observable<String> categoryPage = mNoLimit91PornServiceApi.getCategoryPage(category, viewType, page, m, HeaderUtils.getIndexHeader(addressHelper));
         cacheProviders.getCategoryPage(categoryPage, dynamicKeyGroup, evictDynamicKey)
                 .map(new Function<Reply<String>, String>() {
                     @Override

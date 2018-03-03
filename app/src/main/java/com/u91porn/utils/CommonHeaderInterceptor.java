@@ -4,6 +4,9 @@ import android.support.annotation.NonNull;
 
 import java.io.IOException;
 
+import javax.inject.Inject;
+import javax.inject.Singleton;
+
 import okhttp3.Interceptor;
 import okhttp3.Request;
 import okhttp3.Response;
@@ -13,7 +16,13 @@ import okhttp3.Response;
  * @date 2018/1/17
  */
 
+@Singleton
 public class CommonHeaderInterceptor implements Interceptor {
+
+    @Inject
+    public CommonHeaderInterceptor() {
+    }
+
     @Override
     public Response intercept(@NonNull Chain chain) throws IOException {
         //统一设置请求头

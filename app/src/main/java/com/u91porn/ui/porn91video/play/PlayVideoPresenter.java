@@ -13,9 +13,9 @@ import com.sdsmdg.tastytoast.TastyToast;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.cookie.SetCookieCache;
 import com.u91porn.cookie.SharedPrefsCookiePersistor;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.VideoComment;
 import com.u91porn.data.model.VideoCommentResult;
@@ -62,9 +62,11 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
     private LifecycleProvider<Lifecycle.Event> provider;
     private int commentPerPage = 20;
     private int start = 1;
-    private DataBaseManager dataBaseManager;
+    private AppDataManager appDataManager;
 
-    public PlayVideoPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, FavoritePresenter favoritePresenter, DownloadPresenter downloadPresenter, SharedPrefsCookiePersistor sharedPrefsCookiePersistor, SetCookieCache setCookieCache, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, DataBaseManager dataBaseManager) {
+    private AddressHelper addressHelper;
+
+    public PlayVideoPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, FavoritePresenter favoritePresenter, DownloadPresenter downloadPresenter, SharedPrefsCookiePersistor sharedPrefsCookiePersistor, SetCookieCache setCookieCache, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, AppDataManager appDataManager, AddressHelper addressHelper) {
         this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
         this.favoritePresenter = favoritePresenter;
         this.downloadPresenter = downloadPresenter;
@@ -72,7 +74,8 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
         this.setCookieCache = setCookieCache;
         this.cacheProviders = cacheProviders;
         this.provider = provider;
-        this.dataBaseManager = dataBaseManager;
+        this.appDataManager = appDataManager;
+        this.addressHelper=addressHelper;
     }
 
     public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi mNoLimit91PornServiceApi) {
@@ -82,8 +85,8 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
     @Override
     public void loadVideoUrl(final UnLimit91PornItem unLimit91PornItem) {
         String viewKey = unLimit91PornItem.getViewKey();
-        String ip = AddressHelper.getRandomIPAddress();
-        cacheProviders.getVideoPlayPage(mNoLimit91PornServiceApi.getVideoPlayPage(viewKey, ip, HeaderUtils.getIndexHeader()), new DynamicKey(viewKey), new EvictDynamicKey(false))
+        String ip = addressHelper.getRandomIPAddress();
+        cacheProviders.getVideoPlayPage(mNoLimit91PornServiceApi.getVideoPlayPage(viewKey, ip, HeaderUtils.getIndexHeader(addressHelper)), new DynamicKey(viewKey), new EvictDynamicKey(false))
                 .map(new Function<Reply<String>, String>() {
                     @Override
                     public String apply(Reply<String> responseBodyReply) throws Exception {
@@ -111,7 +114,7 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
                             if (VideoResult.OUT_OF_WATCH_TIMES.equals(videoResult.getId())) {
                                 //尝试强行重置，并上报异常
                                 resetWatchTime(true);
-                                Bugsnag.notify(new Throwable(TAG + ":ten videos each day host:" + AddressHelper.getInstance().getVideo91PornAddress()), Severity.WARNING);
+                                Bugsnag.notify(new Throwable(TAG + ":ten videos each day host:" + addressHelper.getVideo91PornAddress()), Severity.WARNING);
                                 throw new VideoException("观看次数达到上限了！");
                             } else {
                                 throw new VideoException("解析视频链接失败了");
@@ -398,10 +401,10 @@ public class PlayVideoPresenter extends MvpBasePresenter<PlayVideoView> implemen
     }
 
     private UnLimit91PornItem saveVideoUrl(VideoResult videoResult, UnLimit91PornItem unLimit91PornItem) {
-        dataBaseManager.insertOrReplaceInTx(videoResult);
+        appDataManager.insertOrReplaceInTx(videoResult);
         unLimit91PornItem.setVideoResult(videoResult);
         unLimit91PornItem.setViewHistoryDate(new Date());
-        dataBaseManager.insertOrReplaceInTx(unLimit91PornItem);
+        appDataManager.insertOrReplaceInTx(unLimit91PornItem);
         return unLimit91PornItem;
     }
 

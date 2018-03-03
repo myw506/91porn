@@ -9,15 +9,14 @@ import com.github.yuweiguocn.library.greendao.MigrationHelper;
 import com.helper.loadviewhelper.load.LoadViewHelper;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.squareup.leakcanary.LeakCanary;
-import com.u91porn.data.dao.DaoMaster;
-import com.u91porn.data.dao.DaoSession;
-import com.u91porn.data.dao.DataBaseManager;
-import com.u91porn.data.dao.MySQLiteOpenHelper;
+import com.u91porn.data.db.dao.DaoMaster;
+import com.u91porn.data.db.dao.DaoSession;
+import com.u91porn.data.AppDataManager;
+import com.u91porn.data.db.MySQLiteOpenHelper;
 import com.u91porn.di.component.ApplicationComponent;
 import com.u91porn.di.component.DaggerApplicationComponent;
 import com.u91porn.di.module.ApplicationModule;
 import com.u91porn.eventbus.LowMemoryEvent;
-import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.AppLogger;
 import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.constants.Constants;
@@ -47,7 +46,6 @@ public class MyApplication extends MultiDexApplication {
         applicationComponent = DaggerApplicationComponent.builder().applicationModule(new ApplicationModule(this)).build();
         applicationComponent.inject(this);
         initNightMode();
-        AddressHelper.init(getApplicationContext());
         AppLogger.initLogger();
         initGreenDao3(this);
         initLeakCanry();
@@ -92,7 +90,7 @@ public class MyApplication extends MultiDexApplication {
         MySQLiteOpenHelper helper = new MySQLiteOpenHelper(context, Constants.DB_NAME, null);
         Database db = helper.getWritableDb();
         DaoSession daoSession = new DaoMaster(db).newSession();
-        DataBaseManager.init(daoSession);
+        AppDataManager.init(daoSession);
     }
 
     /**

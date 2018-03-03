@@ -24,7 +24,7 @@ import com.hannesdorfmann.mosby3.mvp.MvpPresenter;
 import com.hannesdorfmann.mosby3.mvp.MvpView;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.data.cache.CacheProviders;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 
 import java.lang.ref.WeakReference;
 
@@ -53,8 +53,8 @@ import java.lang.ref.WeakReference;
 public class MvpBasePresenter<V extends MvpView> extends BasePresenter implements MvpPresenter<V> {
 
 
-    public MvpBasePresenter(DataBaseManager dataBaseManager) {
-        super(dataBaseManager);
+    public MvpBasePresenter(AppDataManager appDataManager) {
+        super(appDataManager);
     }
 
     public MvpBasePresenter(CacheProviders cacheProviders) {
@@ -65,16 +65,16 @@ public class MvpBasePresenter<V extends MvpView> extends BasePresenter implement
         super(provider);
     }
 
-    public MvpBasePresenter(LifecycleProvider<Lifecycle.Event> provider, DataBaseManager dataBaseManager) {
-        super(provider, dataBaseManager);
+    public MvpBasePresenter(LifecycleProvider<Lifecycle.Event> provider, AppDataManager appDataManager) {
+        super(provider, appDataManager);
     }
 
     public MvpBasePresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider) {
         super(cacheProviders, provider);
     }
 
-    public MvpBasePresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, DataBaseManager dataBaseManager) {
-        super(cacheProviders, provider, dataBaseManager);
+    public MvpBasePresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, AppDataManager appDataManager) {
+        super(cacheProviders, provider, appDataManager);
     }
 
     /**

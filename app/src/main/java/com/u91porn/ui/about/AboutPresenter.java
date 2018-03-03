@@ -17,6 +17,8 @@ import java.io.File;
 import java.util.List;
 import java.util.concurrent.TimeUnit;
 
+import javax.inject.Inject;
+
 import io.reactivex.Observable;
 import io.reactivex.ObservableEmitter;
 import io.reactivex.ObservableOnSubscribe;
@@ -33,6 +35,7 @@ public class AboutPresenter extends MvpBasePresenter<AboutView> implements IAbou
     private UpdatePresenter updatePresenter;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    @Inject
     public AboutPresenter(UpdatePresenter updatePresenter, LifecycleProvider<Lifecycle.Event> provider) {
         this.updatePresenter = updatePresenter;
         this.provider = provider;

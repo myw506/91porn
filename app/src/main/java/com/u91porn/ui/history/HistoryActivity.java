@@ -10,7 +10,7 @@ import com.aitsuki.swipe.SwipeMenuRecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.u91porn.R;
 import com.u91porn.adapter.HistoryAdapter;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
 
@@ -65,7 +65,7 @@ public class HistoryActivity extends MvpActivity<HistoryView, HistoryPresenter> 
     @NonNull
     @Override
     public HistoryPresenter createPresenter() {
-        return new HistoryPresenter(DataBaseManager.getInstance());
+        return new HistoryPresenter(AppDataManager.getInstance());
     }
 
     @Override

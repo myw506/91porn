@@ -8,6 +8,8 @@ import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.ui.notice.NoticePresenter;
 import com.u91porn.ui.update.UpdatePresenter;
 
+import javax.inject.Inject;
+
 /**
  * @author flymegoc
  * @date 2017/12/23
@@ -18,6 +20,7 @@ public class MainPresenter extends MvpBasePresenter<MainView> implements IMain {
     private UpdatePresenter updatePresenter;
     private NoticePresenter noticePresenter;
 
+    @Inject
     public MainPresenter(UpdatePresenter updatePresenter, NoticePresenter noticePresenter) {
         this.updatePresenter = updatePresenter;
         this.noticePresenter = noticePresenter;

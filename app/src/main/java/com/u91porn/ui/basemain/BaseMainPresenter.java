@@ -3,7 +3,7 @@ package com.u91porn.ui.basemain;
 import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.Category;
 
 import java.util.List;
@@ -15,15 +15,15 @@ import java.util.List;
  */
 
 public class BaseMainPresenter extends MvpBasePresenter<BaseMainView> implements IBaseMain{
-    protected DataBaseManager dataBaseManager;
+    protected AppDataManager appDataManager;
 
-    public BaseMainPresenter(DataBaseManager dataBaseManager) {
-        this.dataBaseManager = dataBaseManager;
+    public BaseMainPresenter(AppDataManager appDataManager) {
+        this.appDataManager = appDataManager;
     }
 
     @Override
     public void loadAllCategoryData(int type) {
-        final List<Category> categoryList = dataBaseManager.loadAllCategoryData(type);
+        final List<Category> categoryList = appDataManager.loadAllCategoryData(type);
         ifViewAttached(new ViewAction<BaseMainView>() {
             @Override
             public void run(@NonNull BaseMainView view) {
@@ -34,7 +34,7 @@ public class BaseMainPresenter extends MvpBasePresenter<BaseMainView> implements
 
     @Override
     public void loadCategoryData(int type) {
-        final List<Category> categoryList = dataBaseManager.loadCategoryData(type);
+        final List<Category> categoryList = appDataManager.loadCategoryData(type);
         ifViewAttached(new ViewAction<BaseMainView>() {
             @Override
             public void run(@NonNull BaseMainView view) {
@@ -45,11 +45,11 @@ public class BaseMainPresenter extends MvpBasePresenter<BaseMainView> implements
 
     @Override
     public Category findCategoryById(Long id) {
-        return dataBaseManager.findCategoryById(id);
+        return appDataManager.findCategoryById(id);
     }
 
     @Override
     public void updateCategoryData(List<Category> categoryList) {
-        dataBaseManager.updateCategoryData(categoryList);
+        appDataManager.updateCategoryData(categoryList);
     }
 }

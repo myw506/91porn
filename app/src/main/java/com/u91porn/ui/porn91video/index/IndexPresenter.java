@@ -6,16 +6,19 @@ import android.support.annotation.NonNull;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.orhanobut.logger.Logger;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -34,11 +37,13 @@ public class IndexPresenter extends MvpBasePresenter<IndexView> implements IInde
     private NoLimit91PornServiceApi mNoLimit91PornServiceApi;
     private CacheProviders cacheProviders;
     private LifecycleProvider<Lifecycle.Event> provider;
-
-    public IndexPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider) {
+    private AddressHelper addressHelper;
+    @Inject
+    public IndexPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
         this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
         this.cacheProviders = cacheProviders;
         this.provider = provider;
+        this.addressHelper=addressHelper;
     }
 
     public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi mNoLimit91PornServiceApi) {
@@ -52,7 +57,7 @@ public class IndexPresenter extends MvpBasePresenter<IndexView> implements IInde
      */
     @Override
     public void loadIndexData(final boolean pullToRefresh, boolean cleanCache) {
-        Observable<String> indexPhpObservable = mNoLimit91PornServiceApi.indexPhp(HeaderUtils.getIndexHeader());
+        Observable<String> indexPhpObservable = mNoLimit91PornServiceApi.indexPhp(HeaderUtils.getIndexHeader(addressHelper));
         cacheProviders.getIndexPhp(indexPhpObservable, new EvictProvider(cleanCache))
                 .map(new Function<Reply<String>, String>() {
                     @Override

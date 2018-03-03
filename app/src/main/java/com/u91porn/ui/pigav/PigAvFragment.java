@@ -19,13 +19,14 @@ import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.PigAvAdapter;
 import com.u91porn.data.model.PigAv;
-import com.u91porn.eventbus.BaseUrlChangeEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.pigav.playpigav.PlayPigAvActivity;
 import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.constants.Keys;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -45,6 +46,9 @@ public class PigAvFragment extends MvpFragment<PigAvView, PigAvPresenter> implem
     SwipeRefreshLayout swipeLayout;
     Unbinder unbinder;
     private PigAvAdapter piaAvAdapter;
+
+    @Inject
+    protected PigAvPresenter pigAvPresenter;
 
     public PigAvFragment() {
         // Required empty public constructor
@@ -69,13 +73,7 @@ public class PigAvFragment extends MvpFragment<PigAvView, PigAvPresenter> implem
     public PigAvPresenter createPresenter() {
         getActivityComponent().inject(this);
 
-        return new PigAvPresenter(cacheProviders, provider, apiManager.getPigAvServiceApi());
-    }
-
-    @Override
-    public void onBaseUrlChangeEvent(BaseUrlChangeEvent baseUrlChangeEvent) {
-        super.onBaseUrlChangeEvent(baseUrlChangeEvent);
-        presenter.setPigAvServiceApi(apiManager.getPigAvServiceApi());
+        return pigAvPresenter;
     }
 
     @Override

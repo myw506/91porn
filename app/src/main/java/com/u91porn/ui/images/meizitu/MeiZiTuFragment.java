@@ -19,6 +19,7 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.MeiZiTuAdapter;
+import com.u91porn.data.network.MeiZiTuServiceApi;
 import com.u91porn.data.model.MeiZiTu;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
@@ -27,6 +28,8 @@ import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -47,6 +50,12 @@ public class MeiZiTuFragment extends MvpFragment<MeiZiTuView, MeiZiTuPresenter> 
     SwipeRefreshLayout swipeLayout;
     private MeiZiTuAdapter meiZiTuAdapter;
 
+    @Inject
+    protected MeiZiTuServiceApi meiZiTuServiceApi;
+
+    @Inject
+    protected MeiZiTuPresenter meiZiTuPresenter;
+
     public MeiZiTuFragment() {
         // Required empty public constructor
         List<MeiZiTu> meiZiTuList = new ArrayList<>();
@@ -64,7 +73,7 @@ public class MeiZiTuFragment extends MvpFragment<MeiZiTuView, MeiZiTuPresenter> 
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState);
@@ -76,8 +85,7 @@ public class MeiZiTuFragment extends MvpFragment<MeiZiTuView, MeiZiTuPresenter> 
     @Override
     public MeiZiTuPresenter createPresenter() {
         getActivityComponent().inject(this);
-
-        return new MeiZiTuPresenter(apiManager.getMeiZiTuServiceApi(), provider, cacheProviders);
+        return meiZiTuPresenter;
     }
 
     @Override

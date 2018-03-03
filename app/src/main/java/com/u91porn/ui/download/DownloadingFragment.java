@@ -23,7 +23,7 @@ import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.DownloadVideoAdapter;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.service.DownloadVideoService;
 import com.u91porn.ui.MvpFragment;
@@ -66,13 +66,13 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
         @Override
         public void connected() {
             Logger.t(TAG).d("连接上下载服务");
-            List<UnLimit91PornItem> unLimit91PornItems = DataBaseManager.getInstance().loadDownloadingData();
+            List<UnLimit91PornItem> unLimit91PornItems = AppDataManager.getInstance().loadDownloadingData();
             for (UnLimit91PornItem unLimit91PornItem : unLimit91PornItems) {
                 int status = FileDownloader.getImpl().getStatus(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath());
                 Logger.t(TAG).d("fix status:::" + status);
                 if (status != unLimit91PornItem.getStatus()) {
                     unLimit91PornItem.setStatus(status);
-                    DataBaseManager.getInstance().update(unLimit91PornItem);
+                    AppDataManager.getInstance().update(unLimit91PornItem);
                 }
             }
             presenter.loadDownloadingData();
@@ -95,9 +95,9 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
     @Override
     public DownloadPresenter createPresenter() {
         getActivityComponent().inject(this);
-        DataBaseManager dataBaseManager = DataBaseManager.getInstance();
+        AppDataManager appDataManager = AppDataManager.getInstance();
         File videoCacheDir = AppCacheUtils.getVideoCacheDir(getContext());
-        return new DownloadPresenter(dataBaseManager, provider, httpProxyCacheServer, videoCacheDir);
+        return new DownloadPresenter(appDataManager, provider, httpProxyCacheServer, videoCacheDir);
 
     }
 

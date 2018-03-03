@@ -21,7 +21,6 @@ import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.MyApplication;
 import com.u91porn.R;
-import com.u91porn.data.ApiManager;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.User;
@@ -50,9 +49,6 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     protected boolean existActivityWithAnimation = true;
     protected Context context;
     private ActivityComponent mActivityComponent;
-
-    @Inject
-    protected ApiManager apiManager;
 
     @Inject
     protected HttpProxyCacheServer httpProxyCacheServer;

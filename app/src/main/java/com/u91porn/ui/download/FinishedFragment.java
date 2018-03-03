@@ -25,7 +25,7 @@ import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.DownloadVideoAdapter;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.service.DownloadVideoService;
 import com.u91porn.ui.MvpFragment;
@@ -76,7 +76,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
         getActivityComponent().inject(this);
 
         File videoCacheDir = AppCacheUtils.getVideoCacheDir(getContext());
-        return new DownloadPresenter(DataBaseManager.getInstance(), provider, httpProxyCacheServer, videoCacheDir);
+        return new DownloadPresenter(AppDataManager.getInstance(), provider, httpProxyCacheServer, videoCacheDir);
     }
 
     @Override
@@ -182,7 +182,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
                 boolean isDownloadNeedWifi = (boolean) SPUtils.get(getContext(), Keys.KEY_SP_DOWNLOAD_VIDEO_NEED_WIFI, false);
                 unLimit91PornItem.setDownloadId(0);
                 unLimit91PornItem.setSoFarBytes(0);
-                DataBaseManager.getInstance().update(unLimit91PornItem);
+                AppDataManager.getInstance().update(unLimit91PornItem);
                 presenter.downloadVideo(unLimit91PornItem, isDownloadNeedWifi, true);
                 isFoucesRefresh = true;
                 Intent intent = new Intent(getContext(), DownloadVideoService.class);

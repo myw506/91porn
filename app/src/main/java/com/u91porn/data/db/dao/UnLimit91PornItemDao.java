@@ -1,4 +1,4 @@
-package com.u91porn.data.dao;
+package com.u91porn.data.db.dao;
 
 import java.util.List;
 import java.util.ArrayList;

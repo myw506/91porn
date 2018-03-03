@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.MeiZiTuServiceApi;
-import com.u91porn.data.Mm99ServiceApi;
+import com.u91porn.data.network.MeiZiTuServiceApi;
+import com.u91porn.data.network.Mm99ServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.parser.ParseMeiZiTu;
@@ -15,6 +15,8 @@ import com.u91porn.rxjava.RxSchedulersHelper;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -34,6 +36,7 @@ public class PictureViewerPresenter extends MvpBasePresenter<PictureViewerView> 
     private Mm99ServiceApi mm99ServiceApi;
     private CacheProviders cacheProviders;
 
+    @Inject
     public PictureViewerPresenter(LifecycleProvider<Lifecycle.Event> provider, MeiZiTuServiceApi meiZiTuServiceApi, Mm99ServiceApi mm99ServiceApi, CacheProviders cacheProviders) {
         this.provider = provider;
         this.meiZiTuServiceApi = meiZiTuServiceApi;

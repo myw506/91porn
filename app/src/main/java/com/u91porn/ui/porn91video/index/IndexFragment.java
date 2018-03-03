@@ -15,19 +15,18 @@ import android.view.ViewGroup;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.helper.loadviewhelper.help.OnLoadViewListener;
 import com.helper.loadviewhelper.load.LoadViewHelper;
-import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.UnLimit91Adapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.eventbus.ProxySetEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.LoadHelperUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -53,6 +52,9 @@ public class IndexFragment extends MvpFragment<IndexView, IndexPresenter> implem
     private List<UnLimit91PornItem> mUnLimit91PornItemList;
     private LoadViewHelper helper;
 
+    @Inject
+    protected IndexPresenter indexPresenter;
+
     public IndexFragment() {
         // Required empty public constructor
     }
@@ -72,10 +74,7 @@ public class IndexFragment extends MvpFragment<IndexView, IndexPresenter> implem
     @Override
     public IndexPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Logger.t(TAG).d(apiManager.toString());
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-
-        return new IndexPresenter(noLimit91PornServiceApi, cacheProviders, provider);
+        return indexPresenter;
     }
 
     @Override
@@ -112,12 +111,6 @@ public class IndexFragment extends MvpFragment<IndexView, IndexPresenter> implem
             }
         });
         AppUtils.setColorSchemeColors(context,contentView);
-    }
-
-    @Override
-    public void onProxySetEvent(ProxySetEvent proxySetEvent) {
-        super.onProxySetEvent(proxySetEvent);
-        presenter.setNoLimit91PornServiceApi(apiManager.getNoLimit91PornService());
     }
 
     @Override

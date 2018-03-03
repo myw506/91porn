@@ -26,28 +26,23 @@ import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.ProxyAdapter;
-import com.u91porn.data.Api;
-import com.u91porn.data.ProxyServiceApi;
 import com.u91porn.data.model.ProxyModel;
-import com.u91porn.eventbus.ProxySetEvent;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.DialogUtils;
+import com.u91porn.utils.MyProxySelector;
 import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.constants.Keys;
 import com.u91porn.widget.IpInputEditText;
 
-import org.greenrobot.eventbus.EventBus;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * @author flymegoc
@@ -72,6 +67,15 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
     private boolean isTestSuccess = false;
     private ProxyAdapter proxyAdapter;
     private LoadViewHelper helper;
+
+    @Inject
+    protected ProxyPresenter proxyPresenter;
+
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    protected MyProxySelector myProxySelector;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -150,13 +154,7 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
     @Override
     public ProxyPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Retrofit retrofit = new Retrofit.Builder()
-                .baseUrl(Api.APP_PROXY_GUO_BAN_JIA_DOMAIN)
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .build();
-        ProxyServiceApi proxyServiceApi = retrofit.create(ProxyServiceApi.class);
-        return new ProxyPresenter(proxyServiceApi, provider);
+        return proxyPresenter;
     }
 
     @Override
@@ -192,10 +190,6 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
         SPUtils.put(this, Keys.KEY_SP_OPEN_HTTP_PROXY, true);
         SPUtils.put(this, Keys.KEY_SP_PROXY_IP_ADDRESS, proxyIpAddress);
         SPUtils.put(this, Keys.KEY_SP_PROXY_PORT, proxyPort);
-        //重新实例化接口
-        apiManager.init91PornRetrofitService(AddressHelper.getInstance().getVideo91PornAddress(), false);
-        //通知已经存在的更改为最新的
-        EventBus.getDefault().post(new ProxySetEvent(proxyIpAddress, proxyPort));
         showMessage("设置成功", TastyToast.SUCCESS);
         onBackPressed();
     }
@@ -204,7 +198,7 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_proxy_setting_test:
-                if (AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+                if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
                     Logger.t(TAG).d("木有设置地址呀");
                     showNeedSetAddressFirstDialog();
                     return;

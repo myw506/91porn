@@ -35,7 +35,7 @@ import com.u91porn.BuildConfig;
 import com.u91porn.R;
 import com.u91porn.adapter.BaseMainFragmentAdapter;
 import com.u91porn.adapter.SortCategoryAdapter;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.Category;
 import com.u91porn.eventbus.LowMemoryEvent;
 import com.u91porn.ui.MvpFragment;
@@ -43,6 +43,7 @@ import com.u91porn.ui.porn91video.Main91PronVideoFragment;
 import com.u91porn.utils.AnimationUtils;
 import com.u91porn.utils.FragmentUtils;
 
+import org.greenrobot.eventbus.EventBus;
 import org.greenrobot.eventbus.Subscribe;
 import org.greenrobot.eventbus.ThreadMode;
 
@@ -83,6 +84,7 @@ public abstract class BaseMainFragment extends MvpFragment<BaseMainView, BaseMai
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        EventBus.getDefault().register(this);
         super.onCreate(savedInstanceState);
     }
 
@@ -113,7 +115,7 @@ public abstract class BaseMainFragment extends MvpFragment<BaseMainView, BaseMai
     @Override
     public BaseMainPresenter createPresenter() {
         getActivityComponent().inject(this);
-        return new BaseMainPresenter(DataBaseManager.getInstance());
+        return new BaseMainPresenter(AppDataManager.getInstance());
     }
 
     @Override
@@ -371,6 +373,13 @@ public abstract class BaseMainFragment extends MvpFragment<BaseMainView, BaseMai
     @Override
     public void startDragItem(BaseViewHolder helper) {
         mItemTouchHelper.startDrag(helper);
+    }
+
+    @Override
+    public void onDestroy() {
+        EventBus.getDefault().unregister(this);
+        super.onDestroy();
+        Logger.t(TAG).d("------------------onDestroy()");
     }
 
     /**

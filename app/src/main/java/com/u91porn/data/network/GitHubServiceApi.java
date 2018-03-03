@@ -1,7 +1,8 @@
-package com.u91porn.data;
+package com.u91porn.data.network;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.Url;
 
 /**
@@ -16,6 +17,7 @@ public interface GitHubServiceApi {
      * @param url 链接
      * @return ob
      */
+    @Headers({"Domain-Name: " + Api.GITHUB_DOMAIN_NAME})
     @GET
     Observable<String> checkUpdate(@Url String url);
 
@@ -25,6 +27,7 @@ public interface GitHubServiceApi {
      * @param url 链接
      * @return ob
      */
+    @Headers({"Domain-Name: " + Api.GITHUB_DOMAIN_NAME})
     @GET
     Observable<String> checkNewNotice(@Url String url);
 }

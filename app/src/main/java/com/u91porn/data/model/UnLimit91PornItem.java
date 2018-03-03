@@ -1,8 +1,8 @@
 package com.u91porn.data.model;
 
-import com.u91porn.data.dao.DaoSession;
-import com.u91porn.data.dao.UnLimit91PornItemDao;
-import com.u91porn.data.dao.VideoResultDao;
+import com.u91porn.data.db.dao.DaoSession;
+import com.u91porn.data.db.dao.UnLimit91PornItemDao;
+import com.u91porn.data.db.dao.VideoResultDao;
 import com.u91porn.utils.SDCardUtils;
 
 import org.greenrobot.greendao.DaoException;
@@ -310,15 +310,6 @@ public class UnLimit91PornItem implements Serializable {
         myDao.update(this);
     }
 
-    /**
-     * called by internal mechanisms, do not call yourself.
-     */
-    @Generated(hash = 2098740272)
-    public void __setDaoSession(DaoSession daoSession) {
-        this.daoSession = daoSession;
-        myDao = daoSession != null ? daoSession.getUnLimit91PornItemDao() : null;
-    }
-
     public long getVideoResultId() {
         return this.videoResultId;
     }
@@ -351,5 +342,12 @@ public class UnLimit91PornItem implements Serializable {
                 ", myDao=" + myDao +
                 ", videoResult__resolvedKey=" + videoResult__resolvedKey +
                 '}';
+    }
+
+    /** called by internal mechanisms, do not call yourself. */
+    @Generated(hash = 2098740272)
+    public void __setDaoSession(DaoSession daoSession) {
+        this.daoSession = daoSession;
+        myDao = daoSession != null ? daoSession.getUnLimit91PornItemDao() : null;
     }
 }

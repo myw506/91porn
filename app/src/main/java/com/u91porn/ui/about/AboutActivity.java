@@ -12,6 +12,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import com.google.gson.Gson;
+import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIPackageHelper;
 import com.qmuiteam.qmui.widget.QMUILoadingView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
@@ -20,7 +21,7 @@ import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.data.GitHubServiceApi;
+import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.service.UpdateDownloadService;
 import com.u91porn.ui.MvpActivity;
@@ -35,6 +36,8 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Locale;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -43,6 +46,7 @@ import butterknife.ButterKnife;
  */
 public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implements AboutView {
 
+    private static final String TAG = AboutActivity.class.getSimpleName();
     @BindView(R.id.toolbar)
     Toolbar toolbar;
 
@@ -57,6 +61,18 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
     private AlertDialog cleanCacheDialog;
     private QMUIGroupListView.Section aboutSection;
     private QMUICommonListItemView cleanCacheQMUICommonListItemView;
+
+    @Inject
+    protected GitHubServiceApi gitHubServiceApi;
+
+    @Inject
+    protected Gson gson;
+
+    @Inject
+    protected UpdatePresenter updatePresenter;
+
+    @Inject
+    protected AboutPresenter aboutPresenter;
 
     @SuppressLint("SetTextI18n")
     @Override
@@ -196,8 +212,8 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
     @Override
     public AboutPresenter createPresenter() {
         getActivityComponent().inject(this);
-        GitHubServiceApi gitHubServiceApi = apiManager.getGitHubServiceApi();
-        return new AboutPresenter(new UpdatePresenter(gitHubServiceApi, new Gson(), provider), provider);
+        Logger.t(TAG).d("*************************gitHubServiceApi:" + gitHubServiceApi.toString());
+        return aboutPresenter;
     }
 
     private void showUpdateDialog(final UpdateVersion updateVersion) {

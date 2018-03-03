@@ -22,7 +22,6 @@ import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.data.model.User;
-import com.u91porn.eventbus.ProxySetEvent;
 import com.u91porn.ui.BaseFragment;
 import com.u91porn.ui.about.AboutActivity;
 import com.u91porn.ui.download.DownloadActivity;
@@ -32,14 +31,11 @@ import com.u91porn.ui.main.MainActivity;
 import com.u91porn.ui.proxy.ProxySettingActivity;
 import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.ui.user.UserLoginActivity;
-import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Constants;
 import com.u91porn.utils.constants.Keys;
 import com.u91porn.widget.ObservableScrollView;
-
-import org.greenrobot.eventbus.EventBus;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -78,6 +74,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
 
     private int scrollYPosition = 0;
     private QMUICommonListItemView openProxyItemWithSwitch;
+
 
     public MineFragment() {
 
@@ -130,6 +127,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         setUpUserInfo(user);
+        String proxyStr = (String) SPUtils.get(context, Keys.KEY_SP_PROXY_IP_ADDRESS, "");
+        int proxyPort = (int) SPUtils.get(context, Keys.KEY_SP_PROXY_PORT, 0);
+        updateProxySetUI(proxyStr, proxyPort);
     }
 
     @Override
@@ -185,6 +185,12 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
                 if (isChecked) {
+                    showMessage("暂时取消设置", TastyToast.WARNING);
+                    buttonView.setChecked(false);
+                    SPUtils.put(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
+                    return;
+                }
+                if (isChecked) {
                     showMessage("长按可设置哟", TastyToast.INFO);
                 }
                 if (TextUtils.isEmpty(proxyHost) || port == 0) {
@@ -193,10 +199,6 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                     return;
                 }
                 SPUtils.put(context, Keys.KEY_SP_OPEN_HTTP_PROXY, isChecked);
-                //重新实例化接口
-                apiManager.init91PornRetrofitService(AddressHelper.getInstance().getVideo91PornAddress(), false);
-                //通知已经存在的更改为最新的
-                EventBus.getDefault().post(new ProxySetEvent(proxyHost, port));
             }
         });
 
@@ -222,6 +224,10 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 .addItemView(openProxyItemWithSwitch, null, new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
+                        if (true) {
+                            showMessage("暂时取消设置", TastyToast.WARNING);
+                            return false;
+                        }
                         Intent intent = new Intent(context, ProxySettingActivity.class);
                         startActivityWithAnimotion(intent);
                         return false;
@@ -244,11 +250,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 .addTo(mineList);
     }
 
-
-    @Override
-    public void onProxySetEvent(ProxySetEvent proxySetEvent) {
-        if (!TextUtils.isEmpty(proxySetEvent.getProxyIpAddress()) && proxySetEvent.getProxyPort() > 0) {
-            openProxyItemWithSwitch.setDetailText(proxySetEvent.getProxyIpAddress() + " : " + proxySetEvent.getProxyPort());
+    public void updateProxySetUI(String proxyStr, int proxyPort) {
+        if (!TextUtils.isEmpty(proxyStr) && proxyPort > 0) {
+            openProxyItemWithSwitch.setDetailText(proxyStr + " : " + proxyPort);
         }
         boolean openProxy = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
         openProxyItemWithSwitch.getSwitch().setChecked(openProxy);

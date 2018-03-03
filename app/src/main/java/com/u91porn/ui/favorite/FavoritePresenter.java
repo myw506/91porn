@@ -11,9 +11,9 @@ import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Favorite;
 import com.u91porn.data.model.UnLimit91PornItem;
@@ -24,6 +24,7 @@ import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.SDCardUtils;
 
@@ -50,7 +51,7 @@ import io.rx_cache2.Reply;
 
 public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements IFavorite {
     private static final String TAG = FavoriteListener.class.getSimpleName();
-    private DataBaseManager dataBaseManager;
+    private AppDataManager appDataManager;
     private NoLimit91PornServiceApi noLimit91PornServiceApi;
     private CacheProviders cacheProviders;
     private User user;
@@ -62,13 +63,14 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
      */
     private boolean cleanCache = false;
     private String uploadMsg;
-
-    public FavoritePresenter(DataBaseManager dataBaseManager, NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, User user, LifecycleProvider<Lifecycle.Event> provider) {
-        this.dataBaseManager = dataBaseManager;
+    private AddressHelper addressHelper;
+    public FavoritePresenter(AppDataManager appDataManager, NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, User user, LifecycleProvider<Lifecycle.Event> provider, AddressHelper addressHelper) {
+        this.appDataManager = appDataManager;
         this.noLimit91PornServiceApi = noLimit91PornServiceApi;
         this.cacheProviders = cacheProviders;
         this.user = user;
         this.provider = provider;
+        this.addressHelper=addressHelper;
     }
 
     @Override
@@ -280,7 +282,7 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
     @Override
     public void deleteFavorite(String rvid) {
         String removeFavour = "Remove Favorite";
-        noLimit91PornServiceApi.deleteMyFavorite(rvid, removeFavour, 45, 19, HeaderUtils.getFavHeader())
+        noLimit91PornServiceApi.deleteMyFavorite(rvid, removeFavour, 45, 19, HeaderUtils.getFavHeader(addressHelper))
                 .map(new Function<String, BaseResult<List<UnLimit91PornItem>>>() {
                     @Override
                     public BaseResult<List<UnLimit91PornItem>> apply(String s) throws Exception {
@@ -345,7 +347,7 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
         Observable.create(new ObservableOnSubscribe<List<UnLimit91PornItem>>() {
             @Override
             public void subscribe(ObservableEmitter<List<UnLimit91PornItem>> e) throws Exception {
-                List<UnLimit91PornItem> unLimit91PornItems = dataBaseManager.loadAllLimit91PornItems();
+                List<UnLimit91PornItem> unLimit91PornItems = appDataManager.loadAllLimit91PornItems();
                 e.onNext(unLimit91PornItems);
                 e.onComplete();
             }

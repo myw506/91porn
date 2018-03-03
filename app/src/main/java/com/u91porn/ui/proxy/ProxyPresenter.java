@@ -2,14 +2,12 @@ package com.u91porn.ui.proxy;
 
 import android.arch.lifecycle.Lifecycle;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
-import com.orhanobut.logger.Logger;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.Api;
-import com.u91porn.data.NoLimit91PornServiceApi;
-import com.u91porn.data.ProxyServiceApi;
+import com.u91porn.data.network.Api;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
+import com.u91porn.data.network.ProxyServiceApi;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.ProxyModel;
 import com.u91porn.parser.ParseProxy;
@@ -17,24 +15,16 @@ import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.CheckResultUtils;
-import com.u91porn.utils.CommonHeaderInterceptor;
-import com.u91porn.utils.constants.Constants;
 import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.RegexUtils;
+import com.u91porn.utils.constants.Constants;
 
-import java.net.InetSocketAddress;
-import java.net.Proxy;
 import java.util.List;
-import java.util.concurrent.TimeUnit;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import me.jessyan.retrofiturlmanager.RetrofitUrlManager;
-import okhttp3.OkHttpClient;
-import okhttp3.logging.HttpLoggingInterceptor;
-import retrofit2.Retrofit;
-import retrofit2.adapter.rxjava2.RxJava2CallAdapterFactory;
-import retrofit2.converter.scalars.ScalarsConverterFactory;
 
 /**
  * @author flymegoc
@@ -49,17 +39,20 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
     private LifecycleProvider<Lifecycle.Event> provider;
     private int totalPage = 1;
     private int page = 1;
-
-    public ProxyPresenter(ProxyServiceApi proxyServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
+    private NoLimit91PornServiceApi noLimit91PornServiceApi;
+    private AddressHelper addressHelper;
+    @Inject
+    public ProxyPresenter(ProxyServiceApi proxyServiceApi, LifecycleProvider<Lifecycle.Event> provider, NoLimit91PornServiceApi noLimit91PornServiceApi,AddressHelper addressHelper) {
         this.proxyServiceApi = proxyServiceApi;
         this.provider = provider;
+        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
+        this.addressHelper=addressHelper;
     }
 
     @Override
     public void testProxy(String proxyIpAddress, int proxyPort) {
         if (RegexUtils.isIP(proxyIpAddress) && proxyPort < Constants.PROXY_MAX_PORT && proxyPort > 0) {
-            init91PornRetrofitService(proxyIpAddress, proxyPort)
-                    .indexPhp(HeaderUtils.getIndexHeader())
+            noLimit91PornServiceApi.indexPhp(HeaderUtils.getIndexHeader(addressHelper))
                     .compose(RxSchedulersHelper.<String>ioMainThread())
                     .subscribe(new CallBackWrapper<String>() {
                         @Override
@@ -182,44 +175,5 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
 
     private String getParseUrl(int page) {
         return Api.APP_PROXY_GUO_BAN_JIA_DOMAIN + "free/country/美国/index" + page + ".shtml";
-    }
-
-    /**
-     * 初始化Retrifit网络请求
-     */
-    private NoLimit91PornServiceApi init91PornRetrofitService(String proxyHost, int port) {
-
-        OkHttpClient.Builder builder = new OkHttpClient.Builder();
-
-        //如果代理地址不为空，且端口正确设置Http代理
-        if (!TextUtils.isEmpty(proxyHost) && port < Constants.PROXY_MAX_PORT) {
-            Logger.t(TAG).d("代理设置： host:" + proxyHost + "  端口：" + port);
-            builder.proxy(new Proxy(Proxy.Type.HTTP, new InetSocketAddress(proxyHost, port)));
-        }
-        builder.addInterceptor(new CommonHeaderInterceptor());
-        HttpLoggingInterceptor logging = new HttpLoggingInterceptor(new HttpLoggingInterceptor.Logger() {
-            @Override
-            public void log(@NonNull String message) {
-                Logger.t(TAG).d("HttpLog:" + message);
-            }
-        });
-        logging.setLevel(HttpLoggingInterceptor.Level.HEADERS);
-        builder.addInterceptor(logging);
-        builder.readTimeout(5, TimeUnit.SECONDS);
-        builder.writeTimeout(5, TimeUnit.SECONDS);
-        builder.connectTimeout(5, TimeUnit.SECONDS);
-
-        //动态切换baseUrl 配置
-        OkHttpClient okHttpClient = RetrofitUrlManager.getInstance().with(builder)
-                .build();
-
-        Retrofit retrofit = new Retrofit.Builder()
-                .client(okHttpClient)
-                .baseUrl(AddressHelper.getInstance().getVideo91PornAddress())
-                .addCallAdapterFactory(RxJava2CallAdapterFactory.create())
-                .addConverterFactory(ScalarsConverterFactory.create())
-                .build();
-
-        return retrofit.create(NoLimit91PornServiceApi.class);
     }
 }

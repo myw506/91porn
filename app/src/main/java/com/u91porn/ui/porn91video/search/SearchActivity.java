@@ -17,7 +17,6 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.UnLimit91Adapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.utils.LoadHelperUtils;
@@ -31,6 +30,8 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +56,9 @@ public class SearchActivity extends MvpActivity<SearchView, SearchPresenter> imp
     private String sort = "addate";
     private UnLimit91Adapter mUnLimit91Adapter;
     private LoadViewHelper helper;
+
+    @Inject
+    protected SearchPresenter searchPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -206,8 +210,7 @@ public class SearchActivity extends MvpActivity<SearchView, SearchPresenter> imp
     @Override
     public SearchPresenter createPresenter() {
         getActivityComponent().inject(this);
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        return new SearchPresenter(noLimit91PornServiceApi, provider);
+        return searchPresenter;
     }
 
     @Override

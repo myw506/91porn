@@ -23,7 +23,6 @@ import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.favorite.FavoriteActivity;
@@ -36,6 +35,9 @@ import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Keys;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -71,6 +73,13 @@ public class UserLoginActivity extends MvpActivity<UserView, UserPresenter> impl
     private String password;
     private int loginForAction;
 
+    @Singleton
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    UserPresenter userPresenter;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -78,7 +87,7 @@ public class UserLoginActivity extends MvpActivity<UserView, UserPresenter> impl
         ButterKnife.bind(this);
         initToolBar(toolbar);
         loginForAction = getIntent().getIntExtra(Keys.KEY_INTENT_LOGIN_FOR_ACTION, 0);
-        if (!AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+        if (!addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
             loadCaptcha();
         }
         btUserLogin.setOnClickListener(new View.OnClickListener() {
@@ -160,14 +169,14 @@ public class UserLoginActivity extends MvpActivity<UserView, UserPresenter> impl
             return;
         }
         QMUIKeyboardHelper.hideKeyboard(getCurrentFocus());
-        presenter.login(username, password, f, f2, captcha, acl, x, y, HeaderUtils.getUserHeader("login"));
+        presenter.login(username, password, f, f2, captcha, acl, x, y, HeaderUtils.getUserHeader(addressHelper, "login"));
     }
 
     /**
      * 加载验证码，目前似乎是非必须，不填也是可以登录的
      */
     private void loadCaptcha() {
-        String url = AddressHelper.getInstance().getVideo91PornAddress() + "captcha.php";
+        String url = addressHelper.getVideo91PornAddress() + "captcha.php";
 
         Logger.t(TAG).d("验证码链接：" + url);
         Uri uri = Uri.parse(url);
@@ -178,13 +187,11 @@ public class UserLoginActivity extends MvpActivity<UserView, UserPresenter> impl
     @Override
     public UserPresenter createPresenter() {
         getActivityComponent().inject(this);
-        NoLimit91PornServiceApi noLimit91PornServiceApi = null;
-        if (!AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
-            noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        } else {
+
+        if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
             showNeedSetAddressFirstDialog();
         }
-        return new UserPresenter(noLimit91PornServiceApi, provider);
+        return userPresenter;
     }
 
     private void showNeedSetAddressFirstDialog() {

@@ -14,18 +14,17 @@ import android.view.ViewGroup;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.helper.loadviewhelper.help.OnLoadViewListener;
 import com.helper.loadviewhelper.load.LoadViewHelper;
-import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.UnLimit91Adapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.eventbus.ProxySetEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.utils.AppUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +43,9 @@ public class RecentUpdatesFragment extends MvpFragment<RecentUpdatesView, Recent
     private UnLimit91Adapter mUnLimit91Adapter;
     private LoadViewHelper helper;
 
+    @Inject
+    protected RecentUpdatesPresenter recentUpdatesPresenter;
+
     public RecentUpdatesFragment() {
         // Required empty public constructor
     }
@@ -56,10 +58,7 @@ public class RecentUpdatesFragment extends MvpFragment<RecentUpdatesView, Recent
     @Override
     public RecentUpdatesPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Logger.t(TAG).d(apiManager.toString());
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-
-        return new RecentUpdatesPresenter(noLimit91PornServiceApi, cacheProviders, category.getCategoryValue(), provider);
+        return recentUpdatesPresenter;
     }
 
     @Override
@@ -99,12 +98,6 @@ public class RecentUpdatesFragment extends MvpFragment<RecentUpdatesView, Recent
         });
         //loadData(false);
         AppUtils.setColorSchemeColors(context, contentView);
-    }
-
-    @Override
-    public void onProxySetEvent(ProxySetEvent proxySetEvent) {
-        super.onProxySetEvent(proxySetEvent);
-        presenter.setNoLimit91PornServiceApi(apiManager.getNoLimit91PornService());
     }
 
     @Override

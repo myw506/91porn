@@ -6,6 +6,8 @@ import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.user.UserPresenter;
 
+import javax.inject.Inject;
+
 /**
  * @author flymegoc
  * @date 2017/12/21
@@ -15,6 +17,7 @@ public class SplashPresenter extends MvpBasePresenter<SplashView> implements ISp
 
     private UserPresenter userPresenter;
 
+    @Inject
     public SplashPresenter(UserPresenter userPresenter) {
         this.userPresenter = userPresenter;
     }

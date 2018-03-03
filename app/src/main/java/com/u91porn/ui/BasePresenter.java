@@ -4,7 +4,7 @@ import android.arch.lifecycle.Lifecycle;
 
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.data.cache.CacheProviders;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 
 /**
  * @author flymegoc
@@ -14,10 +14,10 @@ import com.u91porn.data.dao.DataBaseManager;
 public class BasePresenter {
     protected CacheProviders cacheProviders;
     protected LifecycleProvider<Lifecycle.Event> provider;
-    protected DataBaseManager dataBaseManager;
+    protected AppDataManager appDataManager;
 
-    public BasePresenter(DataBaseManager dataBaseManager) {
-        this.dataBaseManager = dataBaseManager;
+    public BasePresenter(AppDataManager appDataManager) {
+        this.appDataManager = appDataManager;
     }
 
     public BasePresenter(CacheProviders cacheProviders) {
@@ -34,14 +34,14 @@ public class BasePresenter {
         this.provider = provider;
     }
 
-    public BasePresenter(LifecycleProvider<Lifecycle.Event> provider, DataBaseManager dataBaseManager) {
+    public BasePresenter(LifecycleProvider<Lifecycle.Event> provider, AppDataManager appDataManager) {
         this.provider = provider;
-        this.dataBaseManager = dataBaseManager;
+        this.appDataManager = appDataManager;
     }
 
-    public BasePresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, DataBaseManager dataBaseManager) {
+    public BasePresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, AppDataManager appDataManager) {
         this.cacheProviders = cacheProviders;
         this.provider = provider;
-        this.dataBaseManager = dataBaseManager;
+        this.appDataManager = appDataManager;
     }
 }

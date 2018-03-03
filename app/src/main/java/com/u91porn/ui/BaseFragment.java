@@ -16,7 +16,6 @@ import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.MyApplication;
 import com.u91porn.R;
-import com.u91porn.data.ApiManager;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.Category;
 import com.u91porn.data.model.UnLimit91PornItem;
@@ -24,14 +23,8 @@ import com.u91porn.data.model.User;
 import com.u91porn.di.component.ActivityComponent;
 import com.u91porn.di.component.DaggerActivityComponent;
 import com.u91porn.di.module.ActivityModule;
-import com.u91porn.eventbus.BaseUrlChangeEvent;
-import com.u91porn.eventbus.ProxySetEvent;
-import com.u91porn.utils.constants.Keys;
 import com.u91porn.utils.PlaybackEngine;
-
-import org.greenrobot.eventbus.EventBus;
-import org.greenrobot.eventbus.Subscribe;
-import org.greenrobot.eventbus.ThreadMode;
+import com.u91porn.utils.constants.Keys;
 
 import javax.inject.Inject;
 
@@ -50,9 +43,6 @@ public abstract class BaseFragment extends Fragment {
     protected Category category;
     protected boolean mIsLoadedData;
     private ActivityComponent mActivityComponent;
-
-    @Inject
-    protected ApiManager apiManager;
 
     @Inject
     protected HttpProxyCacheServer httpProxyCacheServer;
@@ -81,7 +71,6 @@ public abstract class BaseFragment extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        EventBus.getDefault().register(this);
         if (savedInstanceState != null) {
             category = (Category) savedInstanceState.getSerializable(KEY_SAVE_DIN_STANCE_STATE_CATEGORY);
         }
@@ -101,16 +90,6 @@ public abstract class BaseFragment extends Fragment {
         if (isResumed()) {
             handleOnVisibilityChangedToUser(isVisibleToUser);
         }
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onProxySetEvent(ProxySetEvent proxySetEvent) {
-
-    }
-
-    @Subscribe(threadMode = ThreadMode.MAIN)
-    public void onBaseUrlChangeEvent(BaseUrlChangeEvent baseUrlChangeEvent) {
-
     }
 
     @Override
@@ -219,7 +198,6 @@ public abstract class BaseFragment extends Fragment {
 
     @Override
     public void onDestroy() {
-        EventBus.getDefault().unregister(this);
         super.onDestroy();
         Logger.t(TAG).d("------------------onDestroy()");
     }

@@ -1,4 +1,4 @@
-package com.u91porn.data.dao;
+package com.u91porn.data.db.dao;
 
 import android.database.Cursor;
 import android.database.sqlite.SQLiteStatement;

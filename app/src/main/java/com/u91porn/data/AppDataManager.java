@@ -1,14 +1,16 @@
-package com.u91porn.data.dao;
+package com.u91porn.data;
 
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Severity;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
 import com.u91porn.BuildConfig;
+import com.u91porn.data.db.dao.CategoryDao;
+import com.u91porn.data.db.dao.DaoSession;
+import com.u91porn.data.db.dao.UnLimit91PornItemDao;
+import com.u91porn.data.db.dao.VideoResultDao;
 import com.u91porn.data.model.Category;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.VideoResult;
-
-import org.greenrobot.greendao.DaoException;
 
 import java.util.List;
 
@@ -18,15 +20,15 @@ import java.util.List;
  * @describe
  */
 
-public class DataBaseManager {
+public class AppDataManager {
 
-    private static final String TAG = DataBaseManager.class.getSimpleName();
-    private static DataBaseManager dataBaseManager;
+    private static final String TAG = AppDataManager.class.getSimpleName();
+    private static AppDataManager appDataManager;
     private static UnLimit91PornItemDao unLimit91PornItemDao;
     private static VideoResultDao videoResultDao;
     private static CategoryDao categoryDao;
 
-    private DataBaseManager(DaoSession daoSession) {
+    private AppDataManager(DaoSession daoSession) {
         unLimit91PornItemDao = daoSession.getUnLimit91PornItemDao();
         videoResultDao = daoSession.getVideoResultDao();
         categoryDao = daoSession.getCategoryDao();
@@ -38,15 +40,15 @@ public class DataBaseManager {
     }
 
     public static void init(DaoSession daoSession) {
-        if (dataBaseManager == null) {
-            synchronized (DataBaseManager.class) {
-                dataBaseManager = new DataBaseManager(daoSession);
+        if (appDataManager == null) {
+            synchronized (AppDataManager.class) {
+                appDataManager = new AppDataManager(daoSession);
             }
         }
     }
 
-    public static DataBaseManager getInstance() {
-        return dataBaseManager;
+    public static AppDataManager getInstance() {
+        return appDataManager;
     }
 
     private void initCategory(int type, String[] value, String[] name) {

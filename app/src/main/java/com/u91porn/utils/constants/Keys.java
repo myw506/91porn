@@ -8,8 +8,8 @@ package com.u91porn.utils.constants;
 
 public class Keys {
     public final static String KEY_SP_CUSTOM_ADDRESS = "key_sp_custom_address";
-    public final static String KEY_SP_FORUM_91_PORN_ADDRESS="key_sp_forum_91_porn_address";
-    public final static String KEY_SP_PIG_AV_ADDRESS="key_sp_pig_av_address";
+    public final static String KEY_SP_FORUM_91_PORN_ADDRESS = "key_sp_forum_91_porn_address";
+    public final static String KEY_SP_PIG_AV_ADDRESS = "key_sp_pig_av_address";
     public final static String KEY_SP_USER_LOGIN_USERNAME = "key_sp_user_login_username";
     public final static String KEY_SP_USER_LOGIN_PASSWORD = "key_sp_user_login_password";
     public final static String KEY_SP_USER_AUTO_LOGIN = "key_sp_user_auto_login";
@@ -21,7 +21,7 @@ public class Keys {
     public final static String KEY_SP_OPEN_HTTP_PROXY = "key_sp_open_http_proxy";
     public final static String KEY_SP_OPEN_NIGHT_MODE = "key_sp_open_night_mode";
     public final static String KEY_INTENT_UNLIMIT91PORNITEM = "key_intent_unlimit91pornitem";
-    public final static String KEY_INTENT_PIG_AV_ITEM="key_intent_pig_av_item";
+    public final static String KEY_INTENT_PIG_AV_ITEM = "key_intent_pig_av_item";
     public final static String KEY_INTENT_UID = "key_intent_uid";
     public final static String KEY_SELECT_INDEX = "key_select_index";
     public final static String KEY_SETTING_SCROLLVIEW_SCROLL_POSITION = "key_setting_scrollview_scroll_position";
@@ -37,7 +37,7 @@ public class Keys {
     public final static String KEY_INTENT_MEI_ZI_TU_CONTENT_ID = "key_intent_mei_zi_tu_content_id";
     public final static String KEY_SP_VIEW_91_PORN_FORUM_CONTENT_SHOW_TIP = "key_sp_view_91_porn_forum_content_show_tip";
     public final static String KEY_SP_NOTICE_VERSION_CODE = "key_sp_notice_version_code";
-    public final static String KEY_SP_FIRST_TAB_SHOW="key_sp_first_tab_show";
-    public final static String KEY_SP_SECOND_TAB_SHOW="key_sp_second_tab_show";
-    public final static String KEY_INTENT_99_MM_ITEM="key_intent_99_mm_item";
+    public final static String KEY_SP_FIRST_TAB_SHOW = "key_sp_first_tab_show";
+    public final static String KEY_SP_SECOND_TAB_SHOW = "key_sp_second_tab_show";
+    public final static String KEY_INTENT_99_MM_ITEM = "key_intent_99_mm_item";
 }

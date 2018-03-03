@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.Forum91PronServiceApi;
+import com.u91porn.data.network.Forum91PronServiceApi;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
@@ -14,6 +14,8 @@ import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -29,13 +31,10 @@ public class ForumPresenter extends MvpBasePresenter<ForumView> implements IForu
     private int page = 1;
     private int totalPage = 1;
 
+    @Inject
     public ForumPresenter(Forum91PronServiceApi forum91PronServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
         this.forum91PronServiceApi = forum91PronServiceApi;
         this.provider = provider;
-    }
-
-    public void setForum91PronServiceApi(Forum91PronServiceApi forum91PronServiceApi) {
-        this.forum91PronServiceApi = forum91PronServiceApi;
     }
 
     @Override

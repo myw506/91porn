@@ -21,14 +21,16 @@ import com.u91porn.R;
 import com.u91porn.adapter.Forum91PornAdapter;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
-import com.u91porn.eventbus.BaseUrlChangeEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.porn91forum.browse91porn.Browse91PornActivity;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +53,12 @@ public class ForumFragment extends MvpFragment<ForumView, ForumPresenter> implem
     Unbinder unbinder;
     private Forum91PornAdapter forun91PornAdapter;
 
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    protected ForumPresenter forumPresenter;
+
     public ForumFragment() {
         // Required empty public constructor
     }
@@ -63,7 +71,7 @@ public class ForumFragment extends MvpFragment<ForumView, ForumPresenter> implem
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         List<Forum91PronItem> forum91PronItemList = new ArrayList<>();
-        forun91PornAdapter = new Forum91PornAdapter(context, R.layout.item_forum_91_porn, forum91PronItemList);
+        forun91PornAdapter = new Forum91PornAdapter(context, addressHelper, R.layout.item_forum_91_porn, forum91PronItemList);
     }
 
     @Override
@@ -78,12 +86,7 @@ public class ForumFragment extends MvpFragment<ForumView, ForumPresenter> implem
     @Override
     public ForumPresenter createPresenter() {
         getActivityComponent().inject(this);
-        return new ForumPresenter(apiManager.getForum91PronServiceApi(), provider);
-    }
-
-    @Override
-    public void onBaseUrlChangeEvent(BaseUrlChangeEvent baseUrlChangeEvent) {
-        presenter.setForum91PronServiceApi(apiManager.getForum91PronServiceApi());
+        return forumPresenter;
     }
 
     @Override

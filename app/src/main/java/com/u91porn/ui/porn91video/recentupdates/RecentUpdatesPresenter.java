@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
@@ -13,9 +13,12 @@ import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -35,7 +38,7 @@ public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> 
 
     private NoLimit91PornServiceApi noLimit91PornServiceApi;
     private CacheProviders cacheProviders;
-    private String next;
+
     private Integer totalPage = 1;
     private int page = 1;
     private LifecycleProvider<Lifecycle.Event> provider;
@@ -44,15 +47,14 @@ public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> 
      */
     private boolean isLoadMoreCleanCache = false;
 
-    public RecentUpdatesPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, String next, LifecycleProvider<Lifecycle.Event> provider) {
+    private AddressHelper addressHelper;
+
+    @Inject
+    public RecentUpdatesPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, AddressHelper addressHelper) {
         this.noLimit91PornServiceApi = noLimit91PornServiceApi;
         this.cacheProviders = cacheProviders;
-        this.next = next;
         this.provider = provider;
-    }
-
-    public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi noLimit91PornServiceApi) {
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
+        this.addressHelper=addressHelper;
     }
 
     @Override
@@ -65,7 +67,7 @@ public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> 
         DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(next, page);
         EvictDynamicKey evictDynamicKey = new EvictDynamicKey(cleanCache || isLoadMoreCleanCache);
 
-        Observable<String> categoryPage = noLimit91PornServiceApi.recentUpdates(next, page, HeaderUtils.getIndexHeader());
+        Observable<String> categoryPage = noLimit91PornServiceApi.recentUpdates(next, page, HeaderUtils.getIndexHeader(addressHelper));
         cacheProviders.getRecentUpdates(categoryPage, dynamicKeyGroup, evictDynamicKey)
                 .map(new Function<Reply<String>, String>() {
                     @Override

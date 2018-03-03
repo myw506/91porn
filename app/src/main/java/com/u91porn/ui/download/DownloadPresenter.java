@@ -10,7 +10,7 @@ import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.VideoResult;
 import com.u91porn.rxjava.CallBackWrapper;
@@ -41,13 +41,13 @@ import io.reactivex.schedulers.Schedulers;
 
 public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements IDownload {
 
-    private DataBaseManager dataBaseManager;
+    private AppDataManager appDataManager;
     private LifecycleProvider<Lifecycle.Event> provider;
     private HttpProxyCacheServer proxy;
     private File videoCacheDir;
 
-    public DownloadPresenter(DataBaseManager dataBaseManager, LifecycleProvider<Lifecycle.Event> provider, HttpProxyCacheServer proxy, File videoCacheDir) {
-        this.dataBaseManager = dataBaseManager;
+    public DownloadPresenter(AppDataManager appDataManager, LifecycleProvider<Lifecycle.Event> provider, HttpProxyCacheServer proxy, File videoCacheDir) {
+        this.appDataManager = appDataManager;
         this.provider = provider;
         this.proxy = proxy;
         this.videoCacheDir = videoCacheDir;
@@ -65,7 +65,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
 
     @Override
     public void downloadVideo(UnLimit91PornItem unLimit91PornItem, boolean isDownloadNeedWifi, boolean isForceReDownload, DownloadListener downloadListener) {
-        UnLimit91PornItem tmp = dataBaseManager.findByViewKey(unLimit91PornItem.getViewKey());
+        UnLimit91PornItem tmp = appDataManager.findByViewKey(unLimit91PornItem.getViewKey());
         if (tmp == null || tmp.getVideoResultId() == 0) {
             if (downloadListener != null) {
                 downloadListener.onError("还未解析成功视频地址");
@@ -136,7 +136,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
             tmp.setAddDownloadDate(new Date());
         }
         tmp.setDownloadId(id);
-        dataBaseManager.update(tmp);
+        appDataManager.update(tmp);
         if (downloadListener != null) {
             downloadListener.onSuccess("开始下载");
         } else {
@@ -156,7 +156,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
                 .create(new ObservableOnSubscribe<List<UnLimit91PornItem>>() {
                     @Override
                     public void subscribe(ObservableEmitter<List<UnLimit91PornItem>> emitter) throws Exception {
-                        List<UnLimit91PornItem> unLimit91PornItems = dataBaseManager.loadDownloadingData();
+                        List<UnLimit91PornItem> unLimit91PornItems = appDataManager.loadDownloadingData();
                         emitter.onNext(unLimit91PornItems);
                         emitter.onComplete();
                     }
@@ -194,7 +194,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
                 .create(new ObservableOnSubscribe<List<UnLimit91PornItem>>() {
                     @Override
                     public void subscribe(ObservableEmitter<List<UnLimit91PornItem>> emitter) throws Exception {
-                        List<UnLimit91PornItem> unLimit91PornItems = dataBaseManager.loadFinishedData();
+                        List<UnLimit91PornItem> unLimit91PornItems = appDataManager.loadFinishedData();
                         emitter.onNext(unLimit91PornItems);
                         emitter.onComplete();
                     }
@@ -227,7 +227,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
     @Override
     public void deleteDownloadingTask(UnLimit91PornItem unLimit91PornItem) {
         unLimit91PornItem.setDownloadId(0);
-        dataBaseManager.update(unLimit91PornItem);
+        appDataManager.update(unLimit91PornItem);
     }
 
     @Override
@@ -241,7 +241,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
 
     @Override
     public UnLimit91PornItem findUnLimit91PornItemByDownloadId(int downloadId) {
-        return dataBaseManager.findByDownloadId(downloadId);
+        return appDataManager.findByDownloadId(downloadId);
     }
 
     /**
@@ -251,7 +251,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
      */
     private void deleteWithoutFile(UnLimit91PornItem unLimit91PornItem) {
         unLimit91PornItem.setDownloadId(0);
-        dataBaseManager.update(unLimit91PornItem);
+        appDataManager.update(unLimit91PornItem);
     }
 
     /**
@@ -263,7 +263,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
         File file = new File(unLimit91PornItem.getDownLoadPath());
         if (file.delete()) {
             unLimit91PornItem.setDownloadId(0);
-            dataBaseManager.update(unLimit91PornItem);
+            appDataManager.update(unLimit91PornItem);
         } else {
             ifViewAttached(new ViewAction<DownloadView>() {
                 @Override
@@ -316,7 +316,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
                 unLimit91PornItem.setProgress(100);
                 unLimit91PornItem.setFinshedDownloadDate(new Date());
                 unLimit91PornItem.setDownloadId(FileDownloadUtils.generateId(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath()));
-                dataBaseManager.update(unLimit91PornItem);
+                appDataManager.update(unLimit91PornItem);
                 return "下载完成";
             }
         })

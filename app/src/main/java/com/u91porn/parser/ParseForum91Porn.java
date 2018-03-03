@@ -8,7 +8,6 @@ import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Content91Porn;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
-import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.StringUtils;
 
 import org.jsoup.Jsoup;
@@ -193,7 +192,7 @@ public class ParseForum91Porn {
         return baseResult;
     }
 
-    public static BaseResult<Content91Porn> parseContent(String html, boolean isNightModel) {
+    public static BaseResult<Content91Porn> parseContent(String html, boolean isNightModel,String baseUrl) {
         BaseResult<Content91Porn> baseResult = new BaseResult<>();
         Document doc = Jsoup.parse(html);
 
@@ -235,11 +234,11 @@ public class ParseForum91Porn {
             String imgUrl = element.attr("src");
             //只替换不为空且结尾为.jpg 但链接不完整的
             if (!TextUtils.isEmpty(imgUrl) && imgUrl.endsWith(".jpg") && !imgUrl.startsWith("http")) {
-                imgUrl = AddressHelper.getInstance().getForum91PornAddress() + imgUrl;
+                imgUrl = baseUrl + imgUrl;
                 element.attr("src", imgUrl);
                 stringList.add(imgUrl);
             } else if (!TextUtils.isEmpty(element.attr("file"))) {
-                imgUrl = AddressHelper.getInstance().getForum91PornAddress() + element.attr("file");
+                imgUrl = baseUrl + element.attr("file");
                 element.attr("src", imgUrl);
                 stringList.add(imgUrl);
             }

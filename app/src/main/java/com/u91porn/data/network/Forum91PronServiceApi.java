@@ -1,4 +1,4 @@
-package com.u91porn.data;
+package com.u91porn.data.network;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
@@ -12,6 +12,12 @@ import retrofit2.http.Query;
 
 public interface Forum91PronServiceApi {
 
+    /**
+     * 主页
+     *
+     * @return ob
+     */
+    @Headers({"Domain-Name: " + Api.PORN91_FORUM_DOMAIN_NAME})
     @GET("index.php")
     Observable<String> index();
 
@@ -22,12 +28,19 @@ public interface Forum91PronServiceApi {
      * @param page 页码
      * @return ob
      */
+    @Headers({"Domain-Name: " + Api.PORN91_FORUM_DOMAIN_NAME})
     @GET("forumdisplay.php")
     Observable<String> forumdisplay(@Query("fid") String fid, @Query("page") int page);
 
+
+    /**
+     * 帖子具体内容
+     *
+     * @param tid 帖子id
+     * @return ob
+     */
     @Headers({
-            "Referer: http://93.t9p.today/index.php",
-            "Host: 93.t9p.today"
+            "Domain-Name: " + Api.PORN91_FORUM_DOMAIN_NAME
     })
     @GET("viewthread.php")
     Observable<String> forumItemContent(@Query("tid") Long tid);

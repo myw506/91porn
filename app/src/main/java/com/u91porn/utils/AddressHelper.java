@@ -1,9 +1,9 @@
 package com.u91porn.utils;
 
-import android.annotation.SuppressLint;
 import android.content.Context;
 import android.text.TextUtils;
 
+import com.u91porn.di.ApplicationContext;
 import com.u91porn.utils.constants.Keys;
 
 import java.util.Random;
@@ -14,45 +14,26 @@ import java.util.Random;
  */
 
 public class AddressHelper {
-    private static final String TAG = AddressHelper.class.getSimpleName();
-    @SuppressLint("StaticFieldLeak")
-    private static AddressHelper mAddressHelper;
-    @SuppressLint("StaticFieldLeak")
-    private static Context context;
-    private static Random mRandom = new Random();
-    private AddressHelper() {
 
-    }
+    private Context context;
+    private Random mRandom;
 
     /**
-     * init
+     * 无需手动初始化,已在di中全局单例
      *
-     * @param ctx must be application context
+     * @param context ApplicationContext
      */
-    public static void init(Context ctx) {
-        if (mAddressHelper == null) {
-            synchronized (AddressHelper.class) {
-                mAddressHelper = new AddressHelper();
-                context = ctx;
-            }
-        }
-    }
-
-    /**
-     * must be call init before
-     *
-     * @return ob
-     */
-    public static AddressHelper getInstance() {
-        return mAddressHelper;
+    public AddressHelper(@ApplicationContext Context context) {
+        this.context = context;
+        mRandom = new Random();
     }
 
     /**
      * 获取随机ip地址
      *
-     * @return
+     * @return random ip
      */
-    public static String getRandomIPAddress() {
+    public String getRandomIPAddress() {
 
         return String.valueOf(mRandom.nextInt(255)) + "." + String.valueOf(mRandom.nextInt(255)) + "." + String.valueOf(mRandom.nextInt(255)) + "." + String.valueOf(mRandom.nextInt(255));
     }

@@ -6,13 +6,15 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.GitHubServiceApi;
+import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.data.model.Notice;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
+import javax.inject.Inject;
 
 import io.reactivex.functions.Function;
 
@@ -27,6 +29,7 @@ public class NoticePresenter extends MvpBasePresenter<NoticeView> implements INo
     private Gson gson;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    @Inject
     public NoticePresenter(GitHubServiceApi gitHubServiceApi, Gson gson, LifecycleProvider<Lifecycle.Event> provider) {
         this.gitHubServiceApi = gitHubServiceApi;
         this.gson = gson;

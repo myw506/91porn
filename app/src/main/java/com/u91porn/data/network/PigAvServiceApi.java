@@ -1,9 +1,10 @@
-package com.u91porn.data;
+package com.u91porn.data.network;
 
 import io.reactivex.Observable;
 import retrofit2.http.Field;
 import retrofit2.http.FormUrlEncoded;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.POST;
 import retrofit2.http.Url;
 
@@ -14,9 +15,11 @@ import retrofit2.http.Url;
 
 public interface PigAvServiceApi {
 
+    @Headers({"Domain-Name: " + Api.PIGAV_DOMAIN_NAME})
     @GET
     Observable<String> videoList(@Url String url);
 
+    @Headers({"Domain-Name: " + Api.PIGAV_DOMAIN_NAME})
     @GET
     Observable<String> video(@Url String url);
 
@@ -32,6 +35,7 @@ public interface PigAvServiceApi {
      * @param tdUserAction null
      * @return ob
      */
+    @Headers({"Domain-Name: " + Api.PIGAV_DOMAIN_NAME})
     @FormUrlEncoded
     @POST("wp-admin/admin-ajax.php?td_theme_name=Newsmag&v=4.2")
     Observable<String> moreVideoList(@Field("action") String action,@Field("td_atts") String tdAtts,@Field("td_block_id") String tdBlockId,@Field("td_column_number") int tdColumnNumber,@Field("td_current_page") int tdCurrentPage,@Field("block_type") String blockType,@Field("td_filter_value") String tdFilterValue,@Field("td_user_action") String tdUserAction);

@@ -16,7 +16,6 @@ import com.helper.loadviewhelper.load.LoadViewHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.UnLimit91Adapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.utils.LoadHelperUtils;
@@ -24,6 +23,8 @@ import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -42,6 +43,9 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
     private UnLimit91Adapter mUnLimit91Adapter;
     private LoadViewHelper helper;
     private String uid;
+
+    @Inject
+    protected AuthorPresenter authorPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -103,8 +107,7 @@ public class AuthorActivity extends MvpActivity<AuthorView, AuthorPresenter> imp
     @Override
     public AuthorPresenter createPresenter() {
         getActivityComponent().inject(this);
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        return new AuthorPresenter(noLimit91PornServiceApi, provider, cacheProviders);
+        return authorPresenter;
     }
 
     @Override

@@ -6,7 +6,7 @@ import android.text.TextUtils;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
@@ -17,6 +17,8 @@ import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -38,6 +40,7 @@ public class AuthorPresenter extends MvpBasePresenter<AuthorView> implements IAu
     private Integer totalPage;
     private boolean cleanCache;
 
+    @Inject
     public AuthorPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider, CacheProviders cacheProviders) {
         this.noLimit91PornServiceApi = noLimit91PornServiceApi;
         this.provider = provider;

@@ -15,19 +15,18 @@ import android.view.ViewGroup;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.helper.loadviewhelper.help.OnLoadViewListener;
 import com.helper.loadviewhelper.load.LoadViewHelper;
-import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.UnLimit91Adapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.eventbus.ProxySetEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.LoadHelperUtils;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -55,6 +54,9 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
 
     private LoadViewHelper helper;
 
+    @Inject
+    protected CommonPresenter commonPresenter;
+
     public CommonFragment() {
         // Required empty public constructor
     }
@@ -78,14 +80,11 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
     @Override
     public CommonPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Logger.t(TAG).d(apiManager.toString());
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-
-        return new CommonPresenter(noLimit91PornServiceApi, cacheProviders, provider);
+        return commonPresenter;
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState);
@@ -103,12 +102,6 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
         mUnLimit91Adapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
             @Override
             public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
-                String hd = "hd";
-                //好像可以解析得到
-                if (!hd.equals(category.getCategoryValue())) {
-                    showMessage("非会员，无法观看高清视频！", TastyToast.WARNING);
-                    return;
-                }
                 UnLimit91PornItem unLimit91PornItems = (UnLimit91PornItem) adapter.getItem(position);
                 goToPlayVideo(unLimit91PornItems);
             }
@@ -129,12 +122,6 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
         });
         //loadData(false);
         AppUtils.setColorSchemeColors(context, contentView);
-    }
-
-    @Override
-    public void onProxySetEvent(ProxySetEvent proxySetEvent) {
-        super.onProxySetEvent(proxySetEvent);
-        presenter.setNoLimit91PornServiceApi(apiManager.getNoLimit91PornService());
     }
 
     @Override

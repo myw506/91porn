@@ -6,7 +6,7 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.PigAvServiceApi;
+import com.u91porn.data.network.PigAvServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.PigAv;
@@ -19,6 +19,8 @@ import com.u91porn.ui.MvpBasePresenter;
 import com.u91porn.utils.AddressHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
@@ -40,14 +42,14 @@ public class PigAvPresenter extends MvpBasePresenter<PigAvView> implements IPigA
     private int page = 2;
     private Gson gson;
 
-    public PigAvPresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, PigAvServiceApi pigAvServiceApi) {
+    private AddressHelper addressHelper;
+
+    @Inject
+    public PigAvPresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, PigAvServiceApi pigAvServiceApi,AddressHelper addressHelper) {
         super(cacheProviders, provider);
         this.pigAvServiceApi = pigAvServiceApi;
         gson = new Gson();
-    }
-
-    public void setPigAvServiceApi(PigAvServiceApi pigAvServiceApi) {
-        this.pigAvServiceApi = pigAvServiceApi;
+        this.addressHelper=addressHelper;
     }
 
     @Override
@@ -58,9 +60,9 @@ public class PigAvPresenter extends MvpBasePresenter<PigAvView> implements IPigA
         DynamicKey dynamicKey = new DynamicKey(category);
         EvictDynamicKey evictDynamicKey = new EvictDynamicKey(pullToRefresh);
         if ("index".equals(category)) {
-            action(cacheProviders.cacheWithLimitTime(pigAvServiceApi.videoList(AddressHelper.getInstance().getPigAvAddress()), dynamicKey, evictDynamicKey));
+            action(cacheProviders.cacheWithLimitTime(pigAvServiceApi.videoList(addressHelper.getPigAvAddress()), dynamicKey, evictDynamicKey));
         } else {
-            action(cacheProviders.cacheWithLimitTime(pigAvServiceApi.videoList(AddressHelper.getInstance().getPigAvAddress() + category + "av線上看"), dynamicKey, evictDynamicKey));
+            action(cacheProviders.cacheWithLimitTime(pigAvServiceApi.videoList(addressHelper.getPigAvAddress() + category + "av線上看"), dynamicKey, evictDynamicKey));
         }
     }
 

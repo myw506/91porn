@@ -8,7 +8,6 @@ import android.util.Base64;
 
 import com.orhanobut.logger.Logger;
 import com.u91porn.R;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.main.MainActivity;
@@ -19,6 +18,8 @@ import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Keys;
 
+import javax.inject.Inject;
+
 /**
  * @author flymegoc
  */
@@ -26,6 +27,15 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
 
     private static final String TAG = SplashActivity.class.getSimpleName();
     private String password;
+
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    protected UserPresenter userPresenter;
+
+    @Inject
+    protected SplashPresenter splashPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -66,10 +76,12 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
         String acl = "Log In";
         String x = "47";
         String y = "12";
-        if (AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+        if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
             return;
+        } else {
+            startMain();
         }
-        presenter.login(username, password, f, f2, captcha, acl, x, y, HeaderUtils.getUserHeader("login"));
+        presenter.login(username, password, f, f2, captcha, acl, x, y, HeaderUtils.getUserHeader(addressHelper, "login"));
     }
 
     private void startMain() {
@@ -83,12 +95,7 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
     @Override
     public SplashPresenter createPresenter() {
         getActivityComponent().inject(this);
-        NoLimit91PornServiceApi noLimit91PornServiceApi = null;
-        if (!AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
-            noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        }
-        UserPresenter userPresenter = new UserPresenter(noLimit91PornServiceApi, provider);
-        return new SplashPresenter(userPresenter);
+        return splashPresenter;
     }
 
     @Override

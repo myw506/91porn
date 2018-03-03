@@ -5,8 +5,8 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.Api;
-import com.u91porn.data.Mm99ServiceApi;
+import com.u91porn.data.network.Api;
+import com.u91porn.data.network.Mm99ServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Mm99;
@@ -15,6 +15,8 @@ import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -34,6 +36,7 @@ public class Mm99Presenter extends MvpBasePresenter<Mm99View> implements IMm99 {
     private int totalPage = 1;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    @Inject
     public Mm99Presenter(CacheProviders cacheProviders, Mm99ServiceApi mm99ServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
         this.cacheProviders = cacheProviders;
         this.mm99ServiceApi = mm99ServiceApi;

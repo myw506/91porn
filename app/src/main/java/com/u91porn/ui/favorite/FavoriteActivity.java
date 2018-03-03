@@ -19,10 +19,11 @@ import com.helper.loadviewhelper.load.LoadViewHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.FavoriteAdapter;
-import com.u91porn.data.NoLimit91PornServiceApi;
-import com.u91porn.data.dao.DataBaseManager;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
+import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.DialogUtils;
 import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.LoadHelperUtils;
@@ -31,6 +32,8 @@ import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +54,12 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
 
     private LoadViewHelper helper;
     private AlertDialog deleteAlertDialog;
+
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    protected NoLimit91PornServiceApi noLimit91PornServiceApi;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -98,30 +107,27 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
         mUnLimit91Adapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                //presenter.loadFavoriteData(mUnLimit91PornItemList.size(), pageSize);
-                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader());
+                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader(addressHelper));
             }
         }, recyclerView);
-        //presenter.loadFavoriteData(mUnLimit91PornItemList.size(), pageSize);
 
         helper = new LoadViewHelper(recyclerView);
         helper.setListener(new OnLoadViewListener() {
             @Override
             public void onRetryClick() {
-                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader());
+                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader(addressHelper));
             }
         });
         boolean needRefresh = (boolean) SPUtils.get(this, Keys.KEY_SP_USER_FAVORITE_NEED_REFRESH, false);
-        presenter.loadRemoteFavoriteData(needRefresh, HeaderUtils.getIndexHeader());
+        presenter.loadRemoteFavoriteData(needRefresh, HeaderUtils.getIndexHeader(addressHelper));
     }
 
     @NonNull
     @Override
     public FavoritePresenter createPresenter() {
         getActivityComponent().inject(this);
-        DataBaseManager dataBaseManager = DataBaseManager.getInstance();
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        return new FavoritePresenter(dataBaseManager, noLimit91PornServiceApi, cacheProviders, user, provider);
+        AppDataManager appDataManager = AppDataManager.getInstance();
+        return new FavoritePresenter(appDataManager, noLimit91PornServiceApi, cacheProviders, user, provider,addressHelper);
     }
 
 
@@ -250,6 +256,6 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
 
     @Override
     public void onRefresh() {
-        presenter.loadRemoteFavoriteData(true, HeaderUtils.getIndexHeader());
+        presenter.loadRemoteFavoriteData(true, HeaderUtils.getIndexHeader(addressHelper));
     }
 }

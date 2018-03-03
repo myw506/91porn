@@ -4,10 +4,12 @@ import android.app.Application;
 import android.content.Context;
 
 import com.danikula.videocache.HttpProxyCacheServer;
-import com.u91porn.data.ApiManager;
+import com.google.gson.Gson;
+import com.google.gson.GsonBuilder;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.User;
 import com.u91porn.di.ApplicationContext;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.VideoCacheFileNameGenerator;
 
@@ -46,12 +48,6 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    ApiManager providesApiManager(@ApplicationContext Context context) {
-        return new ApiManager(context);
-    }
-
-    @Singleton
-    @Provides
     HttpProxyCacheServer providesHttpProxyCacheServer(@ApplicationContext Context context) {
         return new HttpProxyCacheServer.Builder(context)
                 // 1 Gb for cache
@@ -63,7 +59,7 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    CacheProviders ProvidesCacheProviders(@ApplicationContext Context context) {
+    CacheProviders providesCacheProviders(@ApplicationContext Context context) {
         File cacheDir = AppCacheUtils.getRxCacheDir(context);
         return new RxCache.Builder()
                 .persistence(cacheDir, new GsonSpeaker())
@@ -74,5 +70,17 @@ public class ApplicationModule {
     @Provides
     User providesUser() {
         return new User();
+    }
+
+    @Singleton
+    @Provides
+    Gson providesGson() {
+        return new GsonBuilder().create();
+    }
+
+    @Singleton
+    @Provides
+    AddressHelper providesAddressHelper(@ApplicationContext Context context) {
+        return new AddressHelper(context);
     }
 }

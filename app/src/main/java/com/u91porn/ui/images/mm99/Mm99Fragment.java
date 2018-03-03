@@ -18,6 +18,7 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.Mm99Adapter;
+import com.u91porn.data.network.Mm99ServiceApi;
 import com.u91porn.data.model.Mm99;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
@@ -25,6 +26,8 @@ import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.constants.Keys;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -44,6 +47,12 @@ public class Mm99Fragment extends MvpFragment<Mm99View, Mm99Presenter> implement
     SwipeRefreshLayout swipeLayout;
     Unbinder unbinder;
     private Mm99Adapter mm99Adapter;
+
+    @Inject
+    protected Mm99ServiceApi mm99ServiceApi;
+
+    @Inject
+    protected Mm99Presenter mm99Presenter;
 
     public Mm99Fragment() {
         // Required empty public constructor
@@ -72,7 +81,7 @@ public class Mm99Fragment extends MvpFragment<Mm99View, Mm99Presenter> implement
     public Mm99Presenter createPresenter() {
         getActivityComponent().inject(this);
 
-        return new Mm99Presenter(cacheProviders, apiManager.getMm99ServiceApi(), provider);
+        return mm99Presenter;
     }
 
     @Override

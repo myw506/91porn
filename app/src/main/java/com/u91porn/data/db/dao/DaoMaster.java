@@ -1,4 +1,4 @@
-package com.u91porn.data.dao;
+package com.u91porn.data.db.dao;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
@@ -21,18 +21,18 @@ public class DaoMaster extends AbstractDaoMaster {
 
     /** Creates underlying database table using DAOs. */
     public static void createAllTables(Database db, boolean ifNotExists) {
+        AutoCompleteModelDao.createTable(db, ifNotExists);
         CategoryDao.createTable(db, ifNotExists);
         UnLimit91PornItemDao.createTable(db, ifNotExists);
         VideoResultDao.createTable(db, ifNotExists);
-        AutoCompleteModelDao.createTable(db, ifNotExists);
     }
 
     /** Drops underlying database table using DAOs. */
     public static void dropAllTables(Database db, boolean ifExists) {
+        AutoCompleteModelDao.dropTable(db, ifExists);
         CategoryDao.dropTable(db, ifExists);
         UnLimit91PornItemDao.dropTable(db, ifExists);
         VideoResultDao.dropTable(db, ifExists);
-        AutoCompleteModelDao.dropTable(db, ifExists);
     }
 
     /**
@@ -51,10 +51,10 @@ public class DaoMaster extends AbstractDaoMaster {
 
     public DaoMaster(Database db) {
         super(db, SCHEMA_VERSION);
+        registerDaoClass(AutoCompleteModelDao.class);
         registerDaoClass(CategoryDao.class);
         registerDaoClass(UnLimit91PornItemDao.class);
         registerDaoClass(VideoResultDao.class);
-        registerDaoClass(AutoCompleteModelDao.class);
     }
 
     public DaoSession newSession() {

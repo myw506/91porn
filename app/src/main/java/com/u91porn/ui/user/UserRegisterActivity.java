@@ -15,11 +15,11 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.data.NoLimit91PornServiceApi;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.main.MainActivity;
@@ -31,11 +31,10 @@ import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Keys;
 
-import java.util.List;
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
-import okhttp3.Cookie;
 
 /**
  * @author flymegoc
@@ -62,6 +61,15 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
     private AlertDialog alertDialog;
     private String username;
     private String password;
+
+    @Inject
+    protected AddressHelper addressHelper;
+
+    @Inject
+    protected UserPresenter userPresenter;
+
+    @Inject
+    protected PersistentCookieJar persistentCookieJar;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -91,11 +99,7 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
         });
         alertDialog = DialogUtils.initLodingDialog(this, "注册中，请稍后...");
 
-        apiManager.cleanCookies();
-        List<Cookie> cookieList = apiManager.getSharedPrefsCookiePersistor().loadAll();
-        for (Cookie cookie : cookieList) {
-            Logger.t(TAG).d(cookie.toString());
-        }
+        persistentCookieJar.clear();
     }
 
     /**
@@ -143,24 +147,23 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
         String actionSignUp = "Sign Up";
         String submitX = "45";
         String submitY = "13";
-        String ipAddress = AddressHelper.getRandomIPAddress();
+        String ipAddress = addressHelper.getRandomIPAddress();
         QMUIKeyboardHelper.hideKeyboard(getCurrentFocus());
-        presenter.register(next, username, passwordOne, passwordTwo, email, captcha, fingerprint, vip, actionSignUp, submitX, submitY, ipAddress, HeaderUtils.getUserHeader("signup"));
+        presenter.register(next, username, passwordOne, passwordTwo, email, captcha, fingerprint, vip, actionSignUp, submitX, submitY, ipAddress, HeaderUtils.getUserHeader(addressHelper,"signup"));
     }
 
     @NonNull
     @Override
     public UserPresenter createPresenter() {
         getActivityComponent().inject(this);
-        NoLimit91PornServiceApi noLimit91PornServiceApi = apiManager.getNoLimit91PornService();
-        return new UserPresenter(noLimit91PornServiceApi, provider);
+        return userPresenter;
     }
 
     /**
      * 加载验证码，目前似乎是非必须，不填也是可以登录的
      */
     private void loadCaptcha() {
-        String url = AddressHelper.getInstance().getVideo91PornAddress() + "captcha2.php";
+        String url = addressHelper.getVideo91PornAddress() + "captcha2.php";
         Logger.t(TAG).d("验证码链接：" + url);
         Uri uri = Uri.parse(url);
         GlideApp.with(this).load(uri).placeholder(R.drawable.placeholder).transition(new DrawableTransitionOptions().crossFade(300)).diskCacheStrategy(DiskCacheStrategy.NONE).skipMemoryCache(true).into(wbCaptcha);

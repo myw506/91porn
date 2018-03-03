@@ -34,6 +34,8 @@ import com.u91porn.utils.constants.Keys;
 import java.util.ArrayList;
 import java.util.Stack;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 import cn.pedant.SafeWebViewBridge.InjectedChromeClient;
@@ -55,6 +57,9 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
     private Stack<Long> historyIdStack;
 
     boolean isNightModel;
+
+    @Inject
+    protected Browse91Presenter browse91Presenter;
 
     @SuppressLint("SetJavaScriptEnabled")
     @Override
@@ -82,7 +87,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
                     String tidStr = StringUtils.subString(url, starIndex + 4, starIndex + 10);
                     if (!TextUtils.isEmpty(tidStr) && TextUtils.isDigitsOnly(tidStr)) {
                         Long id = Long.parseLong(tidStr);
-                        presenter.loadContent(id,isNightModel);
+                        presenter.loadContent(id, isNightModel);
                         historyIdStack.push(id);
                     } else {
                         Logger.t(TAG).d(tidStr);
@@ -94,7 +99,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
         });
         AppUtils.setColorSchemeColors(context, swipeLayout);
         forum91PronItem = (Forum91PronItem) getIntent().getSerializableExtra(Keys.KEY_INTENT_BROWSE_FORUM_91_PORN_ITEM);
-        presenter.loadContent(forum91PronItem.getTid(),isNightModel);
+        presenter.loadContent(forum91PronItem.getTid(), isNightModel);
         historyIdStack.push(forum91PronItem.getTid());
         imageList = new ArrayList<>();
         boolean needShowTip = (boolean) SPUtils.get(this, Keys.KEY_SP_VIEW_91_PORN_FORUM_CONTENT_SHOW_TIP, true);
@@ -121,7 +126,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
                 String tidStr = builder.getEditText().getText().toString().trim();
                 if (!TextUtils.isEmpty(tidStr) && TextUtils.isDigitsOnly(tidStr) && tidStr.length() <= 6) {
                     Long id = Long.parseLong(tidStr);
-                    presenter.loadContent(id,isNightModel);
+                    presenter.loadContent(id, isNightModel);
                     historyIdStack.push(id);
                     dialog.dismiss();
                 } else {
@@ -182,7 +187,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
     @Override
     public Browse91Presenter createPresenter() {
         getActivityComponent().inject(this);
-        return new Browse91Presenter(apiManager.getForum91PronServiceApi());
+        return browse91Presenter;
     }
 
     @Override
@@ -219,7 +224,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
 
     @Override
     public void onRefresh() {
-        presenter.loadContent(forum91PronItem.getTid(),isNightModel);
+        presenter.loadContent(forum91PronItem.getTid(), isNightModel);
     }
 
     @Override
@@ -252,7 +257,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
             historyIdStack.pop();
         }
         if (!historyIdStack.empty()) {
-            presenter.loadContent(historyIdStack.peek(),isNightModel);
+            presenter.loadContent(historyIdStack.peek(), isNightModel);
             return;
         }
         super.onBackPressed();

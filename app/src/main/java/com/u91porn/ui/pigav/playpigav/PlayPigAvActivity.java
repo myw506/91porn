@@ -23,7 +23,6 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.PigAvAdapter;
-import com.u91porn.data.PigAvServiceApi;
 import com.u91porn.data.model.PigAv;
 import com.u91porn.data.model.PigAvVideo;
 import com.u91porn.ui.MvpActivity;
@@ -32,6 +31,8 @@ import com.u91porn.utils.GlideApp;
 import com.u91porn.utils.constants.Keys;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -51,6 +52,9 @@ public class PlayPigAvActivity extends MvpActivity<PlayPigAvView, PlayPigAvPrese
     private boolean isPauseByActivityEvent = false;
 
     private AlertDialog alertDialog;
+
+    @Inject
+    protected PlayPigAvPresenter playPigAvPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -112,8 +116,7 @@ public class PlayPigAvActivity extends MvpActivity<PlayPigAvView, PlayPigAvPrese
     public PlayPigAvPresenter createPresenter() {
         getActivityComponent().inject(this);
 
-        PigAvServiceApi pigAvServiceApi = apiManager.getPigAvServiceApi();
-        return new PlayPigAvPresenter(cacheProviders, provider, pigAvServiceApi);
+        return playPigAvPresenter;
     }
 
     @Override

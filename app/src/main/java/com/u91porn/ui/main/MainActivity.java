@@ -19,7 +19,6 @@ import com.ashokvarma.bottomnavigation.BottomNavigationItem;
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Severity;
 import com.devbrackets.android.exomedia.util.ResourceUtil;
-import com.google.gson.Gson;
 import com.liulishuo.filedownloader.FileDownloader;
 import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.widget.dialog.QMUIBottomSheet;
@@ -28,9 +27,9 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.BuildConfig;
 import com.u91porn.R;
-import com.u91porn.data.GitHubServiceApi;
 import com.u91porn.data.model.Notice;
 import com.u91porn.data.model.UpdateVersion;
+import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.eventbus.LowMemoryEvent;
 import com.u91porn.service.UpdateDownloadService;
 import com.u91porn.ui.MvpActivity;
@@ -69,6 +68,8 @@ import java.io.File;
 import java.util.Calendar;
 import java.util.List;
 
+import javax.inject.Inject;
+
 import butterknife.BindView;
 import butterknife.ButterKnife;
 
@@ -105,6 +106,21 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     private int firstTabShow;
     private int secondTabShow;
     private boolean isBackground = false;
+
+    @Inject
+    protected GitHubServiceApi gitHubServiceApi;
+
+    @Inject
+    protected UpdatePresenter updatePresenter;
+
+    @Inject
+    protected NoticePresenter noticePresenter;
+
+    @Inject
+    MainPresenter mainPresenter;
+
+    @Inject
+    AddressHelper addressHelper;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -241,11 +257,11 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 doOnTabSelected(position);
             }
         });
-
         bottomNavigationBar.setBarBackgroundColor(R.color.bottom_navigation_bar_background);
         bottomNavigationBar.setFab(fabSearch);
         bottomNavigationBar.initialise();
     }
+
 
     private void doOnTabSelected(@IntRange(from = 0, to = 4) int position) {
         switch (position) {
@@ -258,7 +274,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 showFloatingActionButton(fabSearch);
                 break;
             case 2:
-                if (AddressHelper.getInstance().isEmpty(Keys.KEY_SP_FORUM_91_PORN_ADDRESS)) {
+                if (addressHelper.isEmpty(Keys.KEY_SP_FORUM_91_PORN_ADDRESS)) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -290,7 +306,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     private void handlerFirstTabClickToShow(int position, int itemId, boolean isInnerReplace) {
         switch (position) {
             case PORN91:
-                if (AddressHelper.getInstance().isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+                if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -303,7 +319,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 mMainPigAvFragment = null;
                 break;
             case PIG_AV:
-                if (AddressHelper.getInstance().isEmpty(Keys.KEY_SP_PIG_AV_ADDRESS)) {
+                if (addressHelper.isEmpty(Keys.KEY_SP_PIG_AV_ADDRESS)) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -556,9 +572,8 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     @Override
     public MainPresenter createPresenter() {
         getActivityComponent().inject(this);
-        GitHubServiceApi gitHubServiceApi = apiManager.getGitHubServiceApi();
-        Gson gson = new Gson();
-        return new MainPresenter(new UpdatePresenter(gitHubServiceApi, gson, provider), new NoticePresenter(gitHubServiceApi, gson, provider));
+        Logger.t(TAG).d("*************************gitHubServiceApi:" + gitHubServiceApi.toString());
+        return mainPresenter;
     }
 
     @Override

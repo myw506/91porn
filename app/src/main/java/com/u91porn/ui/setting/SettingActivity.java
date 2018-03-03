@@ -1,5 +1,6 @@
 package com.u91porn.ui.setting;
 
+import android.content.Context;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
@@ -14,14 +15,14 @@ import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CompoundButton;
 
-import com.orhanobut.logger.Logger;
+import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.eventbus.BaseUrlChangeEvent;
+import com.u91porn.data.network.Api;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.user.UserLoginActivity;
 import com.u91porn.utils.AddressHelper;
@@ -31,8 +32,6 @@ import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Constants;
 import com.u91porn.utils.constants.Keys;
-
-import org.greenrobot.eventbus.EventBus;
 
 import java.util.List;
 
@@ -59,14 +58,19 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
     @Inject
     SettingPresenter settingPresenter;
 
+    @Inject
+    protected AddressHelper addressHelper;
+
     private AlertDialog testAlertDialog;
     private boolean isTestSuccess = false;
     private String testBaseUrl;
 
+    @Inject
+    protected PersistentCookieJar persistentCookieJar;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        Logger.t(TAG).d("onCreate(Bundle savedInstanceState)");
         setContentView(R.layout.activity_setting);
         ButterKnife.bind(this);
         initToolBar(toolbar);
@@ -78,9 +82,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
     @NonNull
     @Override
     public SettingPresenter createPresenter() {
-        Logger.t(TAG).d("createPresenter()");
         getActivityComponent().inject(this);
-
         return settingPresenter;
     }
 
@@ -103,7 +105,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
         QMUICommonListItemView addressItemWithChevron = qmuiGroupListView.createItemView(getString(R.string.address_91porn));
         addressItemWithChevron.setId(R.id.setting_item_91_porn_address);
         addressItemWithChevron.setOrientation(QMUICommonListItemView.VERTICAL);
-        String video91Address = AddressHelper.getInstance().getVideo91PornAddress();
+        String video91Address = addressHelper.getVideo91PornAddress();
         addressItemWithChevron.setDetailText(TextUtils.isEmpty(video91Address) ? "未设置" : video91Address);
         addressItemWithChevron.setAccessoryType(QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON);
 
@@ -111,14 +113,14 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
         QMUICommonListItemView forumAddressItemWithChevron = qmuiGroupListView.createItemView(getString(R.string.address_forum_91porn));
         forumAddressItemWithChevron.setId(R.id.setting_item_t66y_forum_address);
         forumAddressItemWithChevron.setOrientation(QMUICommonListItemView.VERTICAL);
-        String forum91Address = AddressHelper.getInstance().getForum91PornAddress();
+        String forum91Address = addressHelper.getForum91PornAddress();
         forumAddressItemWithChevron.setDetailText(TextUtils.isEmpty(forum91Address) ? "未设置" : forum91Address);
         forumAddressItemWithChevron.setAccessoryType(QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON);
 
         //朱古力视频地址
         QMUICommonListItemView pigAvAddressItemWithChevron = qmuiGroupListView.createItemView(getString(R.string.address_pig_av));
         pigAvAddressItemWithChevron.setOrientation(QMUICommonListItemView.VERTICAL);
-        String pigAvAddress = AddressHelper.getInstance().getPigAvAddress();
+        String pigAvAddress = addressHelper.getPigAvAddress();
         pigAvAddressItemWithChevron.setDetailText(TextUtils.isEmpty(pigAvAddress) ? "未设置" : pigAvAddress);
         pigAvAddressItemWithChevron.setAccessoryType(QMUICommonListItemView.ACCESSORY_TYPE_CHEVRON);
 
@@ -162,6 +164,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
 
         QMUIGroupListView.Section sec = QMUIGroupListView.newSection(this);
 
+        //禁用自动释放内存功能
         boolean isForbidden = (boolean) SPUtils.get(this, Keys.KEY_SP_FORBIDDEN_AUTO_RELEASE_MEMORY_WHEN_LOW_MEMORY, false);
         QMUICommonListItemView itemWithSwitchForbidden = qmuiGroupListView.createItemView("禁用自动释放内存功能");
         itemWithSwitchForbidden.setAccessoryType(QMUICommonListItemView.ACCESSORY_TYPE_SWITCH);
@@ -187,6 +190,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
                 SPUtils.put(SettingActivity.this, Keys.KEY_SP_DOWNLOAD_VIDEO_NEED_WIFI, !isChecked);
             }
         });
+
         sec.addItemView(itemWithSwitch, null);
         sec.addItemView(itemWithSwitchForbidden, this);
         sec.addTo(qmuiGroupListView);
@@ -233,10 +237,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
                 testBaseUrl = address;
                 alertDialog.dismiss();
                 if (isTestSuccess) {
-                    SPUtils.put(context, key, address);
-                    qmuiCommonListItemView.setDetailText(address);
-                    showMessage("设置成功", TastyToast.INFO);
-                    sendUpdateSuccessMessage(key, address);
+                    saveToSpAndUpdateQMUICommonListItemView(context, key, qmuiCommonListItemView, address);
                 } else {
                     showConfirmDialog(qmuiCommonListItemView, address, key);
                 }
@@ -245,6 +246,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
         backAppCompatButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                resetOrUpdateAddress(key, addressHelper);
                 alertDialog.dismiss();
             }
         });
@@ -262,6 +264,49 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
         });
     }
 
+    /**
+     * 刷新为原地址或者最新地址
+     *
+     * @param key           key
+     * @param addressHelper add
+     */
+    private void resetOrUpdateAddress(String key, AddressHelper addressHelper) {
+        switch (key) {
+            case Keys.KEY_SP_CUSTOM_ADDRESS:
+                // 全局 BaseUrl 的优先级低于 Domain-Name header 中单独配置的,其他未配置的接口将受全局 BaseUrl 的影响
+                if (!TextUtils.isEmpty(addressHelper.getVideo91PornAddress())) {
+                    RetrofitUrlManager.getInstance().putDomain(Api.PORN91_VIDEO_DOMAIN_NAME, addressHelper.getVideo91PornAddress());
+                }
+                break;
+            case Keys.KEY_SP_FORUM_91_PORN_ADDRESS:
+                if (!TextUtils.isEmpty(addressHelper.getForum91PornAddress())) {
+                    RetrofitUrlManager.getInstance().putDomain(Api.PORN91_FORUM_DOMAIN_NAME, addressHelper.getForum91PornAddress());
+                }
+                break;
+            case Keys.KEY_SP_PIG_AV_ADDRESS:
+                if (!TextUtils.isEmpty(addressHelper.getPigAvAddress())) {
+                    RetrofitUrlManager.getInstance().putDomain(Api.PIGAV_DOMAIN_NAME, addressHelper.getPigAvAddress());
+                }
+                break;
+            default:
+        }
+    }
+
+    /**
+     * 仅仅只需将新地址保存到sp中即可，下次会自动读取
+     *
+     * @param context                con
+     * @param key                    key
+     * @param qmuiCommonListItemView qc
+     * @param address                address
+     */
+    private void saveToSpAndUpdateQMUICommonListItemView(Context context, String key, QMUICommonListItemView qmuiCommonListItemView, String address) {
+        SPUtils.put(context, key, address);
+        qmuiCommonListItemView.setDetailText(address);
+        showMessage("设置成功", TastyToast.INFO);
+        testBaseUrl = "";
+    }
+
     private void showConfirmDialog(final QMUICommonListItemView qmuiCommonListItemView, final String address, final String key) {
         new AlertDialog.Builder(this, R.style.MyDialogTheme)
                 .setTitle("温馨提示")
@@ -269,10 +314,10 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
                 .setPositiveButton("设置", new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(DialogInterface dialog, int which) {
-                        SPUtils.put(context, key, address);
-                        qmuiCommonListItemView.setDetailText(address);
-                        showMessage("设置成功", TastyToast.INFO);
-                        sendUpdateSuccessMessage(key, address);
+                        dialog.dismiss();
+                        saveToSpAndUpdateQMUICommonListItemView(context, key, qmuiCommonListItemView, address);
+                        //强制设置，则刷新地址
+                        resetOrUpdateAddress(key, addressHelper);
                     }
                 })
                 .setNegativeButton("返回", new DialogInterface.OnClickListener() {
@@ -301,41 +346,25 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
     private void beginTestAddress(String address, QMUICommonListItemView qmuiCommonListItemView, String key) {
         switch (key) {
             case Keys.KEY_SP_CUSTOM_ADDRESS:
+
                 presenter.test91PornVideo(address, qmuiCommonListItemView, key);
                 break;
             case Keys.KEY_SP_FORUM_91_PORN_ADDRESS:
+
                 presenter.test91PornForum(address, qmuiCommonListItemView, key);
                 break;
             case Keys.KEY_SP_PIG_AV_ADDRESS:
+
                 presenter.testPigAv(address, qmuiCommonListItemView, key);
                 break;
             default:
         }
     }
 
-    private void sendUpdateSuccessMessage(String key, String address) {
-        switch (key) {
-            case Keys.KEY_SP_CUSTOM_ADDRESS:
-                // 全局 BaseUrl 的优先级低于 Domain-Name header 中单独配置的,其他未配置的接口将受全局 BaseUrl 的影响
-                RetrofitUrlManager.getInstance().setGlobalDomain(address);
-                break;
-            case Keys.KEY_SP_FORUM_91_PORN_ADDRESS:
-                apiManager.initForum91RetrofitService(address);
-                EventBus.getDefault().post(new BaseUrlChangeEvent());
-                break;
-            case Keys.KEY_SP_PIG_AV_ADDRESS:
-                apiManager.initPigAvRetrofitService(address);
-                EventBus.getDefault().post(new BaseUrlChangeEvent());
-                break;
-            default:
-        }
-        testBaseUrl = "";
-    }
-
     private void showForbiddenReleaseMemoryTipInfoDialog() {
         QMUIDialog.MessageDialogBuilder builder = new QMUIDialog.MessageDialogBuilder(this);
         builder.setTitle("温馨提示");
-        builder.setMessage("为了获得较好的体验，新版本程序占用内存较高，这可能导致后台运行而系统内存不足时成为系统回收内存的优先对象（尤其在低内存手机上），因此我做了自动释放内存功能，但这同时也会使体验有所下降，你可以强制关闭次功能");
+        builder.setMessage("为了获得较好的体验，新版本程序占用内存较高，这可能导致后台运行而系统内存不足时成为系统回收内存的优先对象（尤其在低内存手机上），因此我做了自动释放内存功能，但这同时也会使体验有所下降，你可以强制关闭次功能，建议开启");
         builder.addAction("知道了", new QMUIDialogAction.ActionListener() {
             @Override
             public void onClick(QMUIDialog dialog, int index) {
@@ -369,9 +398,9 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
         builder.setPositiveButton("退出", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                apiManager.cleanCookies();
+                //apiManager.cleanCookies();
+                persistentCookieJar.clear();
                 user.cleanProperties();
-
 //                SPUtils.put(SettingActivity.this, Keys.KEY_SP_USER_LOGIN_USERNAME, "");
 //                SPUtils.put(SettingActivity.this, Keys.KEY_SP_USER_LOGIN_PASSWORD, "");
 //                SPUtils.put(SettingActivity.this, Keys.KEY_SP_USER_AUTO_LOGIN, false);
@@ -396,6 +425,7 @@ public class SettingActivity extends MvpActivity<SettingView, SettingPresenter> 
                 showPlaybackEngineChoiceDialog((QMUICommonListItemView) v);
                 break;
             case R.id.setting_item_t66y_forum_address:
+                showMessage("暂未支持，敬请期待。", TastyToast.INFO);
 //                showAddressSettingDialog((QMUICommonListItemView) v, "");
                 break;
             default:

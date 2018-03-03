@@ -5,11 +5,15 @@ import android.support.annotation.NonNull;
 
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.ApiManager;
+import com.u91porn.data.network.Api;
+import com.u91porn.data.network.Forum91PronServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
+import com.u91porn.data.network.PigAvServiceApi;
 import com.u91porn.exception.MessageException;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 import com.u91porn.ui.MvpBasePresenter;
+import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.CheckResultUtils;
 import com.u91porn.utils.HeaderUtils;
 
@@ -17,6 +21,7 @@ import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
+import me.jessyan.retrofiturlmanager.RetrofitUrlManager;
 
 /**
  * @author flymegoc
@@ -25,18 +30,27 @@ import io.reactivex.functions.Function;
 
 public class SettingPresenter extends MvpBasePresenter<SettingView> implements ISetting {
 
-    private ApiManager apiManager;
+    private AddressHelper addressHelper;
+
+    private NoLimit91PornServiceApi noLimit91PornServiceApi;
+    private Forum91PronServiceApi forum91PronServiceApi;
+    private PigAvServiceApi pigAvServiceApi;
 
     @Inject
-    public SettingPresenter(LifecycleProvider<Lifecycle.Event> provider, ApiManager apiManager) {
+    public SettingPresenter(LifecycleProvider<Lifecycle.Event> provider, AddressHelper addressHelper, NoLimit91PornServiceApi noLimit91PornServiceApi, Forum91PronServiceApi forum91PronServiceApi, PigAvServiceApi pigAvServiceApi) {
         super(provider);
-        this.apiManager = apiManager;
+        this.addressHelper = addressHelper;
+        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
+        this.forum91PronServiceApi = forum91PronServiceApi;
+        this.pigAvServiceApi = pigAvServiceApi;
     }
 
     @Override
     public void test91PornVideo(String baseUrl, final QMUICommonListItemView qmuiCommonListItemView, final String key) {
-        apiManager.init91PornRetrofitService(baseUrl, true)
-                .indexPhp(HeaderUtils.getIndexHeader())
+        // 全局 BaseUrl 的优先级低于 Domain-Name header 中单独配置的,其他未配置的接口将受全局 BaseUrl 的影响
+        RetrofitUrlManager.getInstance().putDomain(Api.PORN91_VIDEO_DOMAIN_NAME, baseUrl);
+        noLimit91PornServiceApi
+                .indexPhp(HeaderUtils.getIndexHeader(addressHelper))
                 .map(new Function<String, String>() {
                     @Override
                     public String apply(String s) throws Exception {
@@ -85,7 +99,8 @@ public class SettingPresenter extends MvpBasePresenter<SettingView> implements I
 
     @Override
     public void test91PornForum(String baseUrl, final QMUICommonListItemView qmuiCommonListItemView, final String key) {
-        apiManager.initForum91RetrofitService(baseUrl)
+        RetrofitUrlManager.getInstance().putDomain(Api.PORN91_FORUM_DOMAIN_NAME, baseUrl);
+        forum91PronServiceApi
                 .index()
                 .map(new Function<String, String>() {
                     @Override
@@ -134,7 +149,8 @@ public class SettingPresenter extends MvpBasePresenter<SettingView> implements I
 
     @Override
     public void testPigAv(String baseUrl, final QMUICommonListItemView qmuiCommonListItemView, final String key) {
-        apiManager.initPigAvRetrofitService(baseUrl)
+        RetrofitUrlManager.getInstance().putDomain(Api.PIGAV_DOMAIN_NAME, baseUrl);
+        pigAvServiceApi
                 .video(baseUrl)
                 .map(new Function<String, String>() {
                     @Override

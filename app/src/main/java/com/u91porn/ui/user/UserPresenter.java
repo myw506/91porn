@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.model.User;
 import com.u91porn.exception.MessageException;
 import com.u91porn.parser.Parse91PronVideo;
@@ -13,6 +13,8 @@ import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
 import com.u91porn.utils.UserHelper;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -28,6 +30,7 @@ public class UserPresenter extends MvpBasePresenter<UserView> implements IUser {
     private NoLimit91PornServiceApi noLimit91PornServiceApi;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    @Inject
     public UserPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
         this.noLimit91PornServiceApi = noLimit91PornServiceApi;
         this.provider = provider;

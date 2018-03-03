@@ -6,12 +6,14 @@ import android.support.annotation.NonNull;
 import com.google.gson.Gson;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.GitHubServiceApi;
+import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.rxjava.CallBackWrapper;
 
 import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
+
+import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
@@ -30,6 +32,7 @@ public class UpdatePresenter extends MvpBasePresenter<UpdateView> implements IUp
     private Gson gson;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    @Inject
     public UpdatePresenter(GitHubServiceApi gitHubServiceApi, Gson gson, LifecycleProvider<Lifecycle.Event> provider) {
         this.gitHubServiceApi = gitHubServiceApi;
         this.gson = gson;

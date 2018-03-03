@@ -5,7 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.NoLimit91PornServiceApi;
+import com.u91porn.data.network.NoLimit91PornServiceApi;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.exception.VideoException;
@@ -17,6 +17,8 @@ import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -31,13 +33,15 @@ public class SearchPresenter extends MvpBasePresenter<SearchView> implements ISe
     private static final String TAG = SearchPresenter.class.getSimpleName();
     private NoLimit91PornServiceApi noLimit91PornServiceApi;
     private LifecycleProvider<Lifecycle.Event> provider;
-
+    private AddressHelper addressHelper;
     private int page = 1;
     private Integer totalPage;
 
-    public SearchPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
+    @Inject
+    public SearchPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
         this.noLimit91PornServiceApi = noLimit91PornServiceApi;
         this.provider = provider;
+        this.addressHelper=addressHelper;
     }
 
     @Override
@@ -47,7 +51,7 @@ public class SearchPresenter extends MvpBasePresenter<SearchView> implements ISe
         if (pullToRefresh) {
             page = 1;
         }
-        noLimit91PornServiceApi.search(viewType, page, searchType, searchId, sort, HeaderUtils.getIndexHeader(), AddressHelper.getRandomIPAddress())
+        noLimit91PornServiceApi.search(viewType, page, searchType, searchId, sort, HeaderUtils.getIndexHeader(addressHelper), addressHelper.getRandomIPAddress())
                 .map(new Function<String, List<UnLimit91PornItem>>() {
                     @Override
                     public List<UnLimit91PornItem> apply(String s) throws Exception {

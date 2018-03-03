@@ -1,9 +1,13 @@
-package com.u91porn.data.dao;
+package com.u91porn.data.db;
 
 import android.content.Context;
 import android.database.sqlite.SQLiteDatabase;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
+import com.u91porn.data.db.dao.CategoryDao;
+import com.u91porn.data.db.dao.DaoMaster;
+import com.u91porn.data.db.dao.UnLimit91PornItemDao;
+import com.u91porn.data.db.dao.VideoResultDao;
 
 import org.greenrobot.greendao.database.Database;
 

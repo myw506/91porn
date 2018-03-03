@@ -22,7 +22,6 @@ import com.u91porn.adapter.BaseHeaderAdapter;
 import com.u91porn.adapter.Forum91PornIndexAdapter;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
-import com.u91porn.eventbus.BaseUrlChangeEvent;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.porn91forum.browse91porn.Browse91PornActivity;
 import com.u91porn.utils.AppUtils;
@@ -30,6 +29,8 @@ import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -49,6 +50,9 @@ public class Forum91IndexFragment extends MvpFragment<ForumView, ForumPresenter>
     SwipeRefreshLayout swipeLayout;
     Unbinder unbinder;
     private Forum91PornIndexAdapter forum91PornIndexAdapter;
+
+    @Inject
+    protected ForumPresenter forumPresenter;
 
     public Forum91IndexFragment() {
         // Required empty public constructor
@@ -161,14 +165,9 @@ public class Forum91IndexFragment extends MvpFragment<ForumView, ForumPresenter>
     @Override
     public ForumPresenter createPresenter() {
         getActivityComponent().inject(this);
-        return new ForumPresenter(apiManager.getForum91PronServiceApi(), provider);
+        return forumPresenter;
     }
 
-
-    @Override
-    public void onBaseUrlChangeEvent(BaseUrlChangeEvent baseUrlChangeEvent) {
-        presenter.setForum91PronServiceApi(apiManager.getForum91PronServiceApi());
-    }
 
     @Override
     public void onDestroyView() {

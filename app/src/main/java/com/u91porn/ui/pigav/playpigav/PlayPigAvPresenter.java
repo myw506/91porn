@@ -7,7 +7,7 @@ import android.text.TextUtils;
 import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.PigAvServiceApi;
+import com.u91porn.data.network.PigAvServiceApi;
 import com.u91porn.data.cache.CacheProviders;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.PigAv;
@@ -18,6 +18,8 @@ import com.u91porn.rxjava.RxSchedulersHelper;
 import com.u91porn.ui.MvpBasePresenter;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
@@ -35,6 +37,7 @@ public class PlayPigAvPresenter extends MvpBasePresenter<PlayPigAvView> implemen
 
     private PigAvServiceApi pigAvServiceApi;
 
+    @Inject
     public PlayPigAvPresenter(CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, PigAvServiceApi pigAvServiceApi) {
         super(cacheProviders, provider);
         this.pigAvServiceApi = pigAvServiceApi;

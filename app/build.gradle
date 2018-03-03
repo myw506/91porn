@@ -7,8 +7,8 @@ android {
         applicationId "com.u91porn"
         minSdkVersion 16
         targetSdkVersion 26
-        versionCode 15
-        versionName "1.1.4"
+        versionCode 16
+        versionName "1.1.5"
         testInstrumentationRunner "android.support.test.runner.AndroidJUnitRunner"
         vectorDrawables.useSupportLibrary = true
         multiDexEnabled true
@@ -27,7 +27,7 @@ android {
 
 greendao {
     schemaVersion 6//数据库版本号
-    daoPackage 'com.u91porn.data.dao'//设置DaoMaster、DaoSession、Dao包名
+    daoPackage 'com.u91porn.data.db.dao'//设置DaoMaster、DaoSession、Dao包名
     targetGenDir 'src/main/java'//设置DaoMaster、DaoSession、Dao目录
 }
 
@@ -102,7 +102,7 @@ dependencies {
     compile 'com.github.bumptech.glide:okhttp3-integration:4.5.0'
     annotationProcessor 'com.github.bumptech.glide:compiler:4.5.0'
     compile 'com.ashokvarma.android:bottom-navigation-bar:2.0.4'
-    compile 'me.jessyan:retrofit-url-manager:1.1.0'
+    compile 'me.jessyan:retrofit-url-manager:1.2.0'
     compile 'org.greenrobot:eventbus:3.1.1'
     compile 'com.oushangfeng:PinnedSectionItemDecoration:1.2.4'
     compile 'cn.pedant.safewebviewbridge:library:1.4'

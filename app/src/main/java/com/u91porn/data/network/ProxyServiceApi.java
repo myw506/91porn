@@ -1,7 +1,8 @@
-package com.u91porn.data;
+package com.u91porn.data.network;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
+import retrofit2.http.Headers;
 import retrofit2.http.Url;
 
 /**
@@ -10,6 +11,8 @@ import retrofit2.http.Url;
  */
 
 public interface ProxyServiceApi {
+
+    @Headers({"Domain-Name: " + Api.GUO_BAN_JIA_DOMAIN_NAME})
     @GET
     Observable<String> parseGouBanJia(@Url String url);
 }
