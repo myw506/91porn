@@ -1,4 +1,6 @@
-package com.u91porn.data.network;
+package com.u91porn.data.network.apiservice;
+
+import com.u91porn.data.network.Api;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
@@ -19,7 +21,7 @@ public interface Forum91PronServiceApi {
      */
     @Headers({"Domain-Name: " + Api.PORN91_FORUM_DOMAIN_NAME})
     @GET("index.php")
-    Observable<String> index();
+    Observable<String> porn91ForumIndex();
 
     /**
      * 加载板块列表

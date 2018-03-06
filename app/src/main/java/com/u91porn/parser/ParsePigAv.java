@@ -2,9 +2,11 @@ package com.u91porn.parser;
 
 import android.text.TextUtils;
 
+import com.google.gson.Gson;
 import com.orhanobut.logger.Logger;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.PigAv;
+import com.u91porn.data.model.PigAvVideo;
 import com.u91porn.utils.StringUtils;
 
 import org.jsoup.Jsoup;
@@ -21,20 +23,24 @@ import java.util.List;
  */
 
 public class ParsePigAv {
+    private static final String TAG = ParsePigAv.class.getSimpleName();
+
     /**
      * @param html 原网页
      * @return json===
      */
-    public static BaseResult<List<PigAv>> parserVideoUrl(String html) {
-        BaseResult<List<PigAv>> baseResult = new BaseResult<>();
+    public static BaseResult<PigAvVideo> parserVideoUrl(String html) {
+        BaseResult<PigAvVideo> baseResult = new BaseResult<>();
         Document document = Jsoup.parse(html);
         Element videoWrapper = document.getElementsByClass("td-post-content td-pb-padding-side").first();
         String videoHtml = videoWrapper.html();
-        Logger.d(videoHtml);
+        Logger.t(TAG).d(videoHtml);
         int index = videoHtml.indexOf("setup") + 6;
         int endIndexV = videoHtml.indexOf(");");
         String videoUrl = videoHtml.substring(index, endIndexV);
-        Logger.d(videoUrl);
+        Logger.t(TAG).d(videoUrl);
+
+        PigAvVideo pigAvVideo = new Gson().fromJson(videoUrl, PigAvVideo.class);
 
         Elements items = document.getElementsByClass("td-block-span12");
         List<PigAv> pigAvList = new ArrayList<>();
@@ -56,7 +62,7 @@ public class ParsePigAv {
                 pigAv.setImgUrl(bigImg + ".jpg");
             }
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
-            Logger.d(pId);
+            Logger.t(TAG).d(pId);
             pigAv.setpId(pId);
 
             int imgWidth = Integer.parseInt(img.attr("width"));
@@ -65,8 +71,8 @@ public class ParsePigAv {
             pigAv.setImgHeight(imgHeight);
             pigAvList.add(pigAv);
         }
-        baseResult.setData(pigAvList);
-        baseResult.setMessage(videoUrl);
+        pigAvVideo.setPigAvList(pigAvList);
+        baseResult.setData(pigAvVideo);
         return baseResult;
     }
 
@@ -95,7 +101,7 @@ public class ParsePigAv {
                 pigAv.setImgUrl(bigImg + ".jpg");
             }
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
-            Logger.d(pId);
+            Logger.t(TAG).d(pId);
             pigAv.setpId(pId);
 
             int imgWidth = Integer.parseInt(img.attr("width"));
@@ -133,7 +139,7 @@ public class ParsePigAv {
                 pigAv.setImgUrl(bigImg + ".jpg");
             }
             String pId = StringUtils.subString(imgUrl, beginIndex + 1, endIndex);
-            Logger.d(pId);
+            Logger.t(TAG).d(pId);
             pigAv.setpId(pId);
 
             int imgWidth = Integer.parseInt(img.attr("width"));

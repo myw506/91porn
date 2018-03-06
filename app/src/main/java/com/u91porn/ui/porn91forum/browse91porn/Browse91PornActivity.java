@@ -20,14 +20,13 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.data.model.Content91Porn;
+import com.u91porn.data.model.Porn91ForumContent;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.HostJsScope;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
 import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.AppUtils;
-import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.StringUtils;
 import com.u91porn.utils.constants.Keys;
 
@@ -67,7 +66,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_browse91_porn);
         ButterKnife.bind(this);
-        isNightModel = (boolean) SPUtils.get(this, Keys.KEY_SP_OPEN_NIGHT_MODE, false);
+        isNightModel = dataManager.isOpenNightMode();
         historyIdStack = new Stack<>();
         WebSettings webSettings = mWebView.getSettings();
         webSettings.setJavaScriptEnabled(true);
@@ -102,7 +101,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
         presenter.loadContent(forum91PronItem.getTid(), isNightModel);
         historyIdStack.push(forum91PronItem.getTid());
         imageList = new ArrayList<>();
-        boolean needShowTip = (boolean) SPUtils.get(this, Keys.KEY_SP_VIEW_91_PORN_FORUM_CONTENT_SHOW_TIP, true);
+        boolean needShowTip = dataManager.isViewPorn91ForumContentShowTip();
         if (needShowTip) {
             showTipDialog();
         }
@@ -153,7 +152,7 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
         builder.addAction("我知道了", new QMUIDialogAction.ActionListener() {
             @Override
             public void onClick(QMUIDialog dialog, int index) {
-                SPUtils.put(Browse91PornActivity.this, Keys.KEY_SP_VIEW_91_PORN_FORUM_CONTENT_SHOW_TIP, false);
+                dataManager.setViewPorn91ForumContentShowTip(false);
                 dialog.dismiss();
             }
         });
@@ -212,13 +211,13 @@ public class Browse91PornActivity extends MvpActivity<Browse91View, Browse91Pres
     }
 
     @Override
-    public void loadContentSuccess(Content91Porn content91Porn) {
+    public void loadContentSuccess(Porn91ForumContent porn91ForumContent) {
         imageList.clear();
-        imageList.addAll(content91Porn.getImageList());
-        //mWebView.loadUrl("about:blank");
-        String html = AppUtils.buildHtml(AppUtils.buildTitle(forum91PronItem.getTitle(), forum91PronItem.getAuthor(), forum91PronItem.getAuthorPublishTime()) + content91Porn.getContent(), context);
+        imageList.addAll(porn91ForumContent.getImageList());
+        //mWebView.loadUrl("about:blank");;
+        String html = AppUtils.buildHtml(AppUtils.buildTitle(forum91PronItem.getTitle(), forum91PronItem.getAuthor(), forum91PronItem.getAuthorPublishTime()) + porn91ForumContent.getContent(), isNightModel);
         mWebView.loadDataWithBaseURL("", html, "text/html", "utf-8", null);
-        //mWebView.loadData(StringEscapeUtils.escapeHtml4(content91Porn.getContent()), "text/html", "UTF-8");
+        //mWebView.loadData(StringEscapeUtils.escapeHtml4(porn91ForumContent.getContent()), "text/html", "UTF-8");
         mWebView.setVisibility(View.VISIBLE);
     }
 

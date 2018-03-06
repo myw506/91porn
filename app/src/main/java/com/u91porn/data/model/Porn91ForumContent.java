@@ -7,7 +7,7 @@ import java.util.List;
  * @date 2018/1/24
  */
 
-public class Content91Porn {
+public class Porn91ForumContent {
     private String content;
     private List<String> imageList;
 

@@ -21,7 +21,7 @@ import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.MyApplication;
 import com.u91porn.R;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.User;
 import com.u91porn.di.component.ActivityComponent;
@@ -54,10 +54,10 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     protected HttpProxyCacheServer httpProxyCacheServer;
 
     @Inject
-    protected CacheProviders cacheProviders;
+    protected User user;
 
     @Inject
-    protected User user;
+    protected DataManager dataManager;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -163,7 +163,7 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     }
 
     protected void goToPlayVideo(UnLimit91PornItem unLimit91PornItem) {
-        Intent intent = PlaybackEngine.getPlaybackEngineIntent(this);
+        Intent intent = PlaybackEngine.getPlaybackEngineIntent(this, dataManager.getPlaybackEngine());
         intent.putExtra(Keys.KEY_INTENT_UNLIMIT91PORNITEM, unLimit91PornItem);
         startActivityWithAnimotion(intent);
     }

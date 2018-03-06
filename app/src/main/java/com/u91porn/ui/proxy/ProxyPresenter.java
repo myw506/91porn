@@ -5,17 +5,11 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.Api;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.network.ProxyServiceApi;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.ProxyModel;
-import com.u91porn.parser.ParseProxy;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.CheckResultUtils;
-import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.RegexUtils;
 import com.u91porn.utils.constants.Constants;
 
@@ -35,24 +29,21 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
 
     private static final String TAG = ProxyPresenter.class.getSimpleName();
     private long successTime = 0;
-    private ProxyServiceApi proxyServiceApi;
     private LifecycleProvider<Lifecycle.Event> provider;
     private int totalPage = 1;
     private int page = 1;
-    private NoLimit91PornServiceApi noLimit91PornServiceApi;
-    private AddressHelper addressHelper;
+    private DataManager dataManager;
+
     @Inject
-    public ProxyPresenter(ProxyServiceApi proxyServiceApi, LifecycleProvider<Lifecycle.Event> provider, NoLimit91PornServiceApi noLimit91PornServiceApi,AddressHelper addressHelper) {
-        this.proxyServiceApi = proxyServiceApi;
+    public ProxyPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
-        this.addressHelper=addressHelper;
+        this.dataManager = dataManager;
     }
 
     @Override
     public void testProxy(String proxyIpAddress, int proxyPort) {
         if (RegexUtils.isIP(proxyIpAddress) && proxyPort < Constants.PROXY_MAX_PORT && proxyPort > 0) {
-            noLimit91PornServiceApi.indexPhp(HeaderUtils.getIndexHeader(addressHelper))
+            dataManager.testPorn91VideoAddress()
                     .compose(RxSchedulersHelper.<String>ioMainThread())
                     .subscribe(new CallBackWrapper<String>() {
                         @Override
@@ -73,12 +64,7 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
                                 @Override
                                 public void run(@NonNull ProxyView view) {
                                     view.showContent();
-                                    if (CheckResultUtils.check91PronVideoConnectIsSuccess(s)) {
-                                        view.testProxySuccess("测试成功，用时：" + successTime + " ms");
-                                    } else {
-                                        view.testProxyError("访问成功，但无法获取内容");
-                                    }
-
+                                    view.testProxySuccess("测试成功，用时：" + successTime + " ms");
                                 }
                             });
                         }
@@ -109,11 +95,10 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
         if (pullToRefresh) {
             page = 1;
         }
-        proxyServiceApi.parseGouBanJia(getParseUrl(page))
-                .map(new Function<String, List<ProxyModel>>() {
+        dataManager.loadXiCiDaiLiProxyData(page)
+                .map(new Function<BaseResult<List<ProxyModel>>, List<ProxyModel>>() {
                     @Override
-                    public List<ProxyModel> apply(String s) throws Exception {
-                        BaseResult<List<ProxyModel>> baseResult = ParseProxy.parseGouBanJia(s);
+                    public List<ProxyModel> apply(BaseResult<List<ProxyModel>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }
@@ -171,9 +156,5 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
                     }
                 });
 
-    }
-
-    private String getParseUrl(int page) {
-        return Api.APP_PROXY_GUO_BAN_JIA_DOMAIN + "free/country/美国/index" + page + ".shtml";
     }
 }

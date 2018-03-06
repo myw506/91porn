@@ -23,8 +23,6 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.PictureAdapter;
-import com.u91porn.data.network.MeiZiTuServiceApi;
-import com.u91porn.data.network.Mm99ServiceApi;
 import com.u91porn.data.model.Mm99;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.utils.DialogUtils;
@@ -57,12 +55,6 @@ public class PictureViewerActivity extends MvpActivity<PictureViewerView, Pictur
     private boolean isFullScreen = false;
     private PictureAdapter pictureAdapter;
     private AlertDialog alertDialog;
-
-    @Inject
-    protected MeiZiTuServiceApi meiZiTuServiceApi;
-
-    @Inject
-    protected Mm99ServiceApi mm99ServiceApi;
 
     @Inject
     protected PictureViewerPresenter pictureViewerPresenter;

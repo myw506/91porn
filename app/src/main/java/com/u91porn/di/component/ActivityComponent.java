@@ -8,6 +8,7 @@ import com.u91porn.ui.download.DownloadActivity;
 import com.u91porn.ui.download.DownloadingFragment;
 import com.u91porn.ui.download.FinishedFragment;
 import com.u91porn.ui.favorite.FavoriteActivity;
+import com.u91porn.ui.history.HistoryActivity;
 import com.u91porn.ui.images.meizitu.MeiZiTuFragment;
 import com.u91porn.ui.images.mm99.Mm99Fragment;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
@@ -69,6 +70,8 @@ public interface ActivityComponent {
     void inject(PictureViewerActivity pictureViewerActivity);
 
     void inject(Browse91PornActivity browse91PornActivity);
+
+    void inject(HistoryActivity historyActivity);
 
     void inject(IndexFragment indexFragment);
 

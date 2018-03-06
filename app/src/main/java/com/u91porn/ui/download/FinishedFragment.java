@@ -25,14 +25,11 @@ import com.liulishuo.filedownloader.BaseDownloadTask;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.DownloadVideoAdapter;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.service.DownloadVideoService;
 import com.u91porn.ui.MvpFragment;
-import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.DownloadManager;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.constants.Keys;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -60,6 +57,12 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
     private boolean isFoucesRefresh = false;
 
     @Inject
+    protected DownloadPresenter downloadPresenter;
+
+    @Inject
+    protected DataManager dataManager;
+
+    @Inject
     public FinishedFragment() {
         // Required empty public constructor
     }
@@ -74,9 +77,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
     @Override
     public DownloadPresenter createPresenter() {
         getActivityComponent().inject(this);
-
-        File videoCacheDir = AppCacheUtils.getVideoCacheDir(getContext());
-        return new DownloadPresenter(AppDataManager.getInstance(), provider, httpProxyCacheServer, videoCacheDir);
+        return downloadPresenter;
     }
 
     @Override
@@ -153,7 +154,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
                 uri = Uri.fromFile(file);
             }
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, "video/mp4");
+            intent.setDataAndType(uri, "pigAvVideoUrl/mp4");
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -179,10 +180,10 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
         builder.setPositiveButton("确定", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int which) {
-                boolean isDownloadNeedWifi = (boolean) SPUtils.get(getContext(), Keys.KEY_SP_DOWNLOAD_VIDEO_NEED_WIFI, false);
+                boolean isDownloadNeedWifi = dataManager.isDownloadVideoNeedWifi();
                 unLimit91PornItem.setDownloadId(0);
                 unLimit91PornItem.setSoFarBytes(0);
-                AppDataManager.getInstance().update(unLimit91PornItem);
+                dataManager.updateUnLimit91PornItem(unLimit91PornItem);
                 presenter.downloadVideo(unLimit91PornItem, isDownloadNeedWifi, true);
                 isFoucesRefresh = true;
                 Intent intent = new Intent(getContext(), DownloadVideoService.class);

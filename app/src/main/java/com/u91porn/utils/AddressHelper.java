@@ -1,10 +1,6 @@
 package com.u91porn.utils;
 
-import android.content.Context;
-import android.text.TextUtils;
-
-import com.u91porn.di.ApplicationContext;
-import com.u91porn.utils.constants.Keys;
+import com.u91porn.data.prefs.PreferencesHelper;
 
 import java.util.Random;
 
@@ -15,17 +11,16 @@ import java.util.Random;
 
 public class AddressHelper {
 
-    private Context context;
     private Random mRandom;
+    private PreferencesHelper preferencesHelper;
 
     /**
      * 无需手动初始化,已在di中全局单例
      *
-     * @param context ApplicationContext
      */
-    public AddressHelper(@ApplicationContext Context context) {
-        this.context = context;
+    public AddressHelper( PreferencesHelper preferencesHelper) {
         mRandom = new Random();
+        this.preferencesHelper = preferencesHelper;
     }
 
     /**
@@ -39,19 +34,14 @@ public class AddressHelper {
     }
 
     public String getVideo91PornAddress() {
-        return (String) SPUtils.get(context, Keys.KEY_SP_CUSTOM_ADDRESS, "");
+        return preferencesHelper.getPorn91VideoAddress();
     }
 
     public String getForum91PornAddress() {
-        return (String) SPUtils.get(context, Keys.KEY_SP_FORUM_91_PORN_ADDRESS, "");
+        return preferencesHelper.getPorn91ForumAddress();
     }
 
     public String getPigAvAddress() {
-        return (String) SPUtils.get(context, Keys.KEY_SP_PIG_AV_ADDRESS, "");
-    }
-
-    public boolean isEmpty(String key) {
-        String address = (String) SPUtils.get(context, key, "");
-        return TextUtils.isEmpty(address);
+        return preferencesHelper.getPigAvAddress();
     }
 }

@@ -21,6 +21,7 @@ import io.reactivex.functions.Function;
 
 public class RetryWhenProcess implements Function<Observable<Throwable>, ObservableSource<?>> {
     private static final String TAG = RetryWhenProcess.class.getSimpleName();
+    public static final int PROCESS_TIME = 2;
     /**
      * 重试间隔
      */

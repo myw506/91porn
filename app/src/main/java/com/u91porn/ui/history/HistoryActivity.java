@@ -10,12 +10,13 @@ import com.aitsuki.swipe.SwipeMenuRecyclerView;
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.u91porn.R;
 import com.u91porn.adapter.HistoryAdapter;
-import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
 
 import java.util.ArrayList;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -32,6 +33,9 @@ public class HistoryActivity extends MvpActivity<HistoryView, HistoryPresenter> 
 
     private HistoryAdapter mUnLimit91Adapter;
     private List<UnLimit91PornItem> mUnLimit91PornItemList;
+
+    @Inject
+    protected HistoryPresenter historyPresenter;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -65,7 +69,8 @@ public class HistoryActivity extends MvpActivity<HistoryView, HistoryPresenter> 
     @NonNull
     @Override
     public HistoryPresenter createPresenter() {
-        return new HistoryPresenter(AppDataManager.getInstance());
+        getActivityComponent().inject(this);
+        return historyPresenter;
     }
 
     @Override

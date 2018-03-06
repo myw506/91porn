@@ -23,16 +23,12 @@ import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.DownloadVideoAdapter;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.service.DownloadVideoService;
 import com.u91porn.ui.MvpFragment;
-import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.DownloadManager;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.constants.Keys;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -56,6 +52,11 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
     private DownloadVideoAdapter mDownloadAdapter;
     private ArrayList<UnLimit91PornItem> mUnLimit91PornItemList;
 
+    @Inject
+    protected DataManager dataManager;
+
+    @Inject
+    protected DownloadPresenter downloadPresenter;
 
     @Inject
     public DownloadingFragment() {
@@ -66,13 +67,13 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
         @Override
         public void connected() {
             Logger.t(TAG).d("连接上下载服务");
-            List<UnLimit91PornItem> unLimit91PornItems = AppDataManager.getInstance().loadDownloadingData();
+            List<UnLimit91PornItem> unLimit91PornItems = dataManager.loadDownloadingData();
             for (UnLimit91PornItem unLimit91PornItem : unLimit91PornItems) {
                 int status = FileDownloader.getImpl().getStatus(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath());
                 Logger.t(TAG).d("fix status:::" + status);
                 if (status != unLimit91PornItem.getStatus()) {
                     unLimit91PornItem.setStatus(status);
-                    AppDataManager.getInstance().update(unLimit91PornItem);
+                    dataManager.updateUnLimit91PornItem(unLimit91PornItem);
                 }
             }
             presenter.loadDownloadingData();
@@ -95,9 +96,7 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
     @Override
     public DownloadPresenter createPresenter() {
         getActivityComponent().inject(this);
-        AppDataManager appDataManager = AppDataManager.getInstance();
-        File videoCacheDir = AppCacheUtils.getVideoCacheDir(getContext());
-        return new DownloadPresenter(appDataManager, provider, httpProxyCacheServer, videoCacheDir);
+        return downloadPresenter;
 
     }
 
@@ -159,7 +158,7 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
     }
 
     private void startDownload(UnLimit91PornItem unLimit91PornItem, View view, boolean isForceReDownload) {
-        boolean isDownloadNeedWifi = (boolean) SPUtils.get(getContext(), Keys.KEY_SP_DOWNLOAD_VIDEO_NEED_WIFI, false);
+        boolean isDownloadNeedWifi = dataManager.isDownloadVideoNeedWifi();
         presenter.downloadVideo(unLimit91PornItem, isDownloadNeedWifi, isForceReDownload);
         ((ImageView) view).setImageResource(R.drawable.pause_download);
         Intent intent = new Intent(getContext(), DownloadVideoService.class);
@@ -197,7 +196,7 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
 
     @Override
     public void update(BaseDownloadTask task) {
-        Logger.t(TAG).d("update(BaseDownloadTask task)");
+        Logger.t(TAG).d("updateUnLimit91PornItem(BaseDownloadTask task)");
         if (mUnLimit91PornItemList == null || mUnLimit91PornItemList.size() == 0) {
             return;
         }

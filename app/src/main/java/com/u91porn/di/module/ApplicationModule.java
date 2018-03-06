@@ -6,12 +6,25 @@ import android.content.Context;
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.u91porn.cookie.AppCookieManager;
+import com.u91porn.cookie.CookieManager;
+import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.db.AppDbHelper;
+import com.u91porn.data.db.DbHelper;
 import com.u91porn.data.model.User;
+import com.u91porn.data.network.ApiHelper;
+import com.u91porn.data.network.AppApiHelper;
+import com.u91porn.data.prefs.AppPreferencesHelper;
+import com.u91porn.data.prefs.PreferencesHelper;
 import com.u91porn.di.ApplicationContext;
+import com.u91porn.di.DatabaseInfo;
+import com.u91porn.di.PreferenceInfo;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.VideoCacheFileNameGenerator;
+import com.u91porn.utils.constants.Constants;
 
 import java.io.File;
 
@@ -80,7 +93,49 @@ public class ApplicationModule {
 
     @Singleton
     @Provides
-    AddressHelper providesAddressHelper(@ApplicationContext Context context) {
-        return new AddressHelper(context);
+    AddressHelper providesAddressHelper(PreferencesHelper preferencesHelper) {
+        return new AddressHelper(preferencesHelper);
+    }
+
+    @Provides
+    @DatabaseInfo
+    String providesDatabaseName() {
+        return Constants.DB_NAME;
+    }
+
+    @Provides
+    @PreferenceInfo
+    String providePreferenceName(@ApplicationContext Context context) {
+        return context.getPackageName() + "_preferences";
+    }
+
+    @Provides
+    @Singleton
+    DataManager provideDataManager(AppDataManager appDataManager) {
+        return appDataManager;
+    }
+
+    @Provides
+    @Singleton
+    DbHelper provideDbHelper(AppDbHelper appDbHelper) {
+        return appDbHelper;
+    }
+
+    @Provides
+    @Singleton
+    PreferencesHelper providePreferencesHelper(AppPreferencesHelper appPreferencesHelper) {
+        return appPreferencesHelper;
+    }
+
+    @Provides
+    @Singleton
+    ApiHelper providesApiHelper(AppApiHelper appApiHelper) {
+        return appApiHelper;
+    }
+
+    @Provides
+    @Singleton
+    CookieManager providesCookieManager(AppCookieManager appCookieManager) {
+        return appCookieManager;
     }
 }

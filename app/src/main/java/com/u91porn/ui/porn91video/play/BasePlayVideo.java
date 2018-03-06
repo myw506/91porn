@@ -39,30 +39,21 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.VideoCommentAdapter;
-import com.u91porn.cookie.SetCookieCache;
-import com.u91porn.cookie.SharedPrefsCookiePersistor;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.VideoComment;
 import com.u91porn.data.model.VideoResult;
 import com.u91porn.service.DownloadVideoService;
 import com.u91porn.ui.MvpActivity;
-import com.u91porn.ui.download.DownloadPresenter;
-import com.u91porn.ui.favorite.FavoritePresenter;
 import com.u91porn.ui.porn91video.author.AuthorActivity;
 import com.u91porn.ui.user.UserLoginActivity;
 import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.AppCacheUtils;
 import com.u91porn.utils.AppUtils;
 import com.u91porn.utils.DialogUtils;
-import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.LoadHelperUtils;
-import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Keys;
 
-import java.io.File;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
@@ -120,8 +111,6 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
 
     protected UnLimit91PornItem unLimit91PornItem;
 
-    private AppDataManager appDataManager = AppDataManager.getInstance();
-
     private VideoCommentAdapter videoCommentAdapter;
     private boolean isVideoError = true;
     private boolean isComment = true;
@@ -131,13 +120,10 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
     protected AddressHelper addressHelper;
 
     @Inject
-    protected NoLimit91PornServiceApi mNoLimit91PornServiceApi;
+    protected PlayVideoPresenter playVideoPresenter;
 
     @Inject
-    protected SharedPrefsCookiePersistor sharedPrefsCookiePersistor;
-
-    @Inject
-    protected SetCookieCache setCookieCache;
+    protected DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -180,7 +166,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
                     return;
                 }
                 String videoId = unLimit91PornItem.getVideoResult().getVideoId();
-                presenter.loadVideoComment(videoId, true, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+                presenter.loadVideoComment(videoId, unLimit91PornItem.getViewKey(), true);
             }
         });
         userinfoLayout.setOnClickListener(new View.OnClickListener() {
@@ -218,7 +204,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
         String uid = String.valueOf(user.getUserId());
         if (isComment) {
             commentVideoDialog.show();
-            presenter.commentVideo(comment, uid, vid, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+            presenter.commentVideo(comment, uid, vid, unLimit91PornItem.getViewKey());
         } else {
             if (videoComment == null) {
                 showMessage("请先选择需要回复的评论！", TastyToast.INFO);
@@ -227,12 +213,12 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
             commentVideoDialog.show();
             String username = videoComment.getuName();
             String commentId = videoComment.getReplyId();
-            presenter.replyComment(comment, username, vid, commentId, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+            presenter.replyComment(comment, username, vid, commentId, unLimit91PornItem.getViewKey());
         }
     }
 
     private void initData() {
-        UnLimit91PornItem tmp = appDataManager.findByViewKey(unLimit91PornItem.getViewKey());
+        UnLimit91PornItem tmp = dataManager.findUnLimit91PornItemByViewKey(unLimit91PornItem.getViewKey());
         if (tmp == null || tmp.getVideoResult() == null) {
             presenter.loadVideoUrl(unLimit91PornItem);
         } else {
@@ -241,12 +227,12 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
             Logger.t(TAG).d("使用已有播放地址");
             //浏览历史
             unLimit91PornItem.setViewHistoryDate(new Date());
-            appDataManager.update(unLimit91PornItem);
+            dataManager.updateUnLimit91PornItem(unLimit91PornItem);
             VideoResult videoResult = unLimit91PornItem.getVideoResult();
             setToolBarLayoutInfo(unLimit91PornItem);
             playVideo(unLimit91PornItem.getTitle(), videoResult.getVideoUrl(), videoResult.getVideoName(), videoResult.getThumbImgUrl());
             //加载评论
-            presenter.loadVideoComment(videoResult.getVideoId(), true, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+            presenter.loadVideoComment(videoResult.getVideoId(), unLimit91PornItem.getViewKey(), true);
         }
     }
 
@@ -295,7 +281,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
                     if (unLimit91PornItem.getVideoResultId() == 0) {
                         return;
                     }
-                    presenter.loadVideoComment(unLimit91PornItem.getVideoResult().getVideoId(), true, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+                    presenter.loadVideoComment(unLimit91PornItem.getVideoResult().getVideoId(), unLimit91PornItem.getViewKey(), true);
                 }
             }
         });
@@ -311,7 +297,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
      * 测量高度，为了让loading居中显示
      */
     private void setLoadingViewVideoCommentHeight() {
-        int height = (int) SPUtils.get(this, Keys.KEY_SP_APPBARLAYOUT_HEIGHT, 0);
+        int height = dataManager.getAppBarLayoutHeight();
         if (height > 0) {
             setLoadingViewHeight(height);
         }
@@ -323,7 +309,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
                 int screenHeight = QMUIDisplayHelper.getScreenHeight(BasePlayVideo.this);
                 int remainHeight = screenHeight - height - QMUIDisplayHelper.getScreenWidth(BasePlayVideo.this) * 9 / 16;
                 if (remainHeight != height) {
-                    SPUtils.put(BasePlayVideo.this, Keys.KEY_SP_APPBARLAYOUT_HEIGHT, remainHeight);
+                    dataManager.setAppBarLayoutHeight(remainHeight);
                     setLoadingViewHeight(remainHeight);
                 }
             }
@@ -357,7 +343,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
                     videoCommentAdapter.loadMoreFail();
                     return;
                 }
-                presenter.loadVideoComment(unLimit91PornItem.getVideoResult().getVideoId(), false, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+                presenter.loadVideoComment(unLimit91PornItem.getVideoResult().getVideoId(), unLimit91PornItem.getViewKey(), false);
             }
         }, recyclerViewVideoComment);
         videoCommentAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
@@ -416,12 +402,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
     @Override
     public PlayVideoPresenter createPresenter() {
         getActivityComponent().inject(this);
-        FavoritePresenter favoritePresenter = new FavoritePresenter(appDataManager, mNoLimit91PornServiceApi, cacheProviders, user, provider, addressHelper);
-
-        File videoCacheDir = AppCacheUtils.getVideoCacheDir(this);
-        DownloadPresenter downloadPresenter = new DownloadPresenter(appDataManager, provider, httpProxyCacheServer, videoCacheDir);
-
-        return new PlayVideoPresenter(mNoLimit91PornServiceApi, favoritePresenter, downloadPresenter, sharedPrefsCookiePersistor, setCookieCache, cacheProviders, provider, appDataManager, addressHelper);
+        return playVideoPresenter;
     }
 
     @Override
@@ -441,8 +422,8 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
         VideoResult videoResult = unLimit91PornItem.getVideoResult();
         playVideo(unLimit91PornItem.getTitle(), videoResult.getVideoUrl(), "", videoResult.getThumbImgUrl());
         helper.showContent();
-        presenter.loadVideoComment(videoResult.getVideoId(), true, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
-        boolean neverAskForWatchDownloadTip = (boolean) SPUtils.get(this, Keys.KEY_SP_NEVER_ASK_FOR_WATCH_DOWNLOAD_TIP, false);
+        presenter.loadVideoComment(videoResult.getVideoId(), unLimit91PornItem.getViewKey(), true);
+        boolean neverAskForWatchDownloadTip = dataManager.isNeverAskForWatchDownloadTip();
         if (!neverAskForWatchDownloadTip) {
             showWatchDownloadVideoTipDialog();
         }
@@ -465,7 +446,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
             @Override
             public void onClick(QMUIDialog dialog, int index) {
                 dialog.dismiss();
-                SPUtils.put(BasePlayVideo.this, Keys.KEY_SP_NEVER_ASK_FOR_WATCH_DOWNLOAD_TIP, true);
+                dataManager.setNeverAskForWatchDownloadTip(true);
             }
         });
         builder.show();
@@ -482,7 +463,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
 
     @Override
     public void favoriteSuccess() {
-        SPUtils.put(this, Keys.KEY_SP_USER_FAVORITE_NEED_REFRESH, true);
+        dataManager.setFavoriteNeedRefresh(true);
         showMessage("收藏成功", TastyToast.SUCCESS);
     }
 
@@ -549,7 +530,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
         //刷新
         commentSwipeRefreshLayout.setRefreshing(true);
         String videoId = unLimit91PornItem.getVideoResult().getVideoId();
-        presenter.loadVideoComment(videoId, true, HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+        presenter.loadVideoComment(videoId, unLimit91PornItem.getViewKey(), true);
     }
 
     @Override
@@ -641,7 +622,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
     }
 
     private void startDownloadVideo() {
-        boolean isDownloadNeedWifi = (boolean) SPUtils.get(this, Keys.KEY_SP_DOWNLOAD_VIDEO_NEED_WIFI, false);
+        boolean isDownloadNeedWifi = dataManager.isDownloadVideoNeedWifi();
         presenter.downloadVideo(unLimit91PornItem, isDownloadNeedWifi, false);
         Intent intent = new Intent(this, DownloadVideoService.class);
         startService(intent);
@@ -663,7 +644,7 @@ public abstract class BasePlayVideo extends MvpActivity<PlayVideoView, PlayVideo
             return;
         }
         favoriteDialog.show();
-        presenter.favorite("addToFavorites", String.valueOf(user.getUserId()), videoResult.getVideoId(), videoResult.getOwnnerId(), "json", HeaderUtils.getPlayVideoReferer(unLimit91PornItem.getViewKey(), addressHelper));
+        presenter.favorite(String.valueOf(user.getUserId()), videoResult.getVideoId(), videoResult.getOwnnerId());
     }
 
     private void shareVideoUrl() {

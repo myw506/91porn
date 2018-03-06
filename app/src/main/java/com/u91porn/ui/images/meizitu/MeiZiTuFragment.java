@@ -19,7 +19,6 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.MeiZiTuAdapter;
-import com.u91porn.data.network.MeiZiTuServiceApi;
 import com.u91porn.data.model.MeiZiTu;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
@@ -49,9 +48,6 @@ public class MeiZiTuFragment extends MvpFragment<MeiZiTuView, MeiZiTuPresenter> 
     @BindView(R.id.swipe_layout)
     SwipeRefreshLayout swipeLayout;
     private MeiZiTuAdapter meiZiTuAdapter;
-
-    @Inject
-    protected MeiZiTuServiceApi meiZiTuServiceApi;
 
     @Inject
     protected MeiZiTuPresenter meiZiTuPresenter;

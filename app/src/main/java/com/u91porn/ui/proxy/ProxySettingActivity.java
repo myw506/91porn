@@ -32,8 +32,6 @@ import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.DialogUtils;
 import com.u91porn.utils.MyProxySelector;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.constants.Keys;
 import com.u91porn.widget.IpInputEditText;
 
 import java.util.ArrayList;
@@ -89,8 +87,8 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
 
     private void init() {
         testAlertDialog = DialogUtils.initLodingDialog(this, "测试中，请稍候...");
-        String proxyHost = (String) SPUtils.get(this, Keys.KEY_SP_PROXY_IP_ADDRESS, "");
-        int port = (int) SPUtils.get(this, Keys.KEY_SP_PROXY_PORT, 0);
+        String proxyHost = dataManager.getProxyIpAddress();
+        int port = dataManager.getProxyPort();
         etDialogProxySettingIpAddress.setIpAddressStr(proxyHost);
         etDialogProxySettingPort.setText(port == 0 ? "" : String.valueOf(port));
 
@@ -187,9 +185,9 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
         String proxyIpAddress = etDialogProxySettingIpAddress.getIpAddressStr();
         int proxyPort = Integer.parseInt(etDialogProxySettingPort.getText().toString());
         //设置开启代理并存储地址和端口号
-        SPUtils.put(this, Keys.KEY_SP_OPEN_HTTP_PROXY, true);
-        SPUtils.put(this, Keys.KEY_SP_PROXY_IP_ADDRESS, proxyIpAddress);
-        SPUtils.put(this, Keys.KEY_SP_PROXY_PORT, proxyPort);
+        dataManager.setOpenHttpProxy(true);
+        dataManager.setProxyIpAddress(proxyIpAddress);
+        dataManager.setProxyPort(proxyPort);
         showMessage("设置成功", TastyToast.SUCCESS);
         onBackPressed();
     }
@@ -198,7 +196,7 @@ public class ProxySettingActivity extends MvpActivity<ProxyView, ProxyPresenter>
     public void onClick(View v) {
         switch (v.getId()) {
             case R.id.bt_proxy_setting_test:
-                if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+                if (TextUtils.isEmpty(addressHelper.getVideo91PornAddress())) {
                     Logger.t(TAG).d("木有设置地址呀");
                     showNeedSetAddressFirstDialog();
                     return;

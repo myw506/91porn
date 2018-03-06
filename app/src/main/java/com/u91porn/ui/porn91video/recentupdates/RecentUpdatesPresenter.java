@@ -5,27 +5,19 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.rx_cache2.DynamicKeyGroup;
-import io.rx_cache2.EvictDynamicKey;
-import io.rx_cache2.Reply;
 
 /**
  * 最近更新
@@ -36,9 +28,6 @@ import io.rx_cache2.Reply;
 
 public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> implements IRencentUpdate {
 
-    private NoLimit91PornServiceApi noLimit91PornServiceApi;
-    private CacheProviders cacheProviders;
-
     private Integer totalPage = 1;
     private int page = 1;
     private LifecycleProvider<Lifecycle.Event> provider;
@@ -46,15 +35,12 @@ public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> 
      * 本次强制刷新过那下面的请求也一起刷新
      */
     private boolean isLoadMoreCleanCache = false;
-
-    private AddressHelper addressHelper;
+    private DataManager dataManager;
 
     @Inject
-    public RecentUpdatesPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider, AddressHelper addressHelper) {
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
-        this.cacheProviders = cacheProviders;
+    public RecentUpdatesPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
-        this.addressHelper=addressHelper;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -64,28 +50,17 @@ public class RecentUpdatesPresenter extends MvpBasePresenter<RecentUpdatesView> 
             page = 1;
             isLoadMoreCleanCache = true;
         }
-        DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(next, page);
-        EvictDynamicKey evictDynamicKey = new EvictDynamicKey(cleanCache || isLoadMoreCleanCache);
-
-        Observable<String> categoryPage = noLimit91PornServiceApi.recentUpdates(next, page, HeaderUtils.getIndexHeader(addressHelper));
-        cacheProviders.getRecentUpdates(categoryPage, dynamicKeyGroup, evictDynamicKey)
-                .map(new Function<Reply<String>, String>() {
+        dataManager.loadPorn91VideoRecentUpdates(next, page, cleanCache, isLoadMoreCleanCache)
+                .map(new Function<BaseResult<List<UnLimit91PornItem>>, List<UnLimit91PornItem>>() {
                     @Override
-                    public String apply(Reply<String> responseBody) throws Exception {
-                        return responseBody.getData();
-                    }
-                })
-                .map(new Function<String, List<UnLimit91PornItem>>() {
-                    @Override
-                    public List<UnLimit91PornItem> apply(String s) throws Exception {
-                        BaseResult<List<UnLimit91PornItem>> baseResult = Parse91PronVideo.parseHot(s);
+                    public List<UnLimit91PornItem> apply(BaseResult<List<UnLimit91PornItem>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }
                         return baseResult.getData();
                     }
                 })
-                .retryWhen(new RetryWhenProcess(2))
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<List<UnLimit91PornItem>>ioMainThread())
                 .compose(provider.<List<UnLimit91PornItem>>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<List<UnLimit91PornItem>>() {

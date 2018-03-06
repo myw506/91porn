@@ -5,7 +5,6 @@ import android.content.Intent;
 
 import com.u91porn.ui.porn91video.play.ExoMediaPlayerActivity;
 import com.u91porn.ui.porn91video.play.JiaoZiVideoPlayerActivity;
-import com.u91porn.utils.constants.Keys;
 
 /**
  * 播放引擎切换
@@ -16,8 +15,8 @@ import com.u91porn.utils.constants.Keys;
 
 public class PlaybackEngine {
     public static final String[] PLAY_ENGINE_ITEMS = new String[]{"Google Exoplayer Engine", "JiaoZiPlayer Engine",};
-    public static final int EXOMEDIAPLAYER_ENGINE = 0;
-    public static final int JIAOZIVIDEOPLAYER_ENGINE = 1;
+    private static final int EXOMEDIAPLAYER_ENGINE = 0;
+    private static final int JIAOZIVIDEOPLAYER_ENGINE = 1;
     public static final int DEFAULT_PLAYER_ENGINE = EXOMEDIAPLAYER_ENGINE;
 
     /**
@@ -26,9 +25,7 @@ public class PlaybackEngine {
      * @param context 上下文
      * @return intent
      */
-    public static Intent getPlaybackEngineIntent(Context context) {
-
-        int engine = (int) SPUtils.get(context, Keys.KEY_SP_PLAYBACK_ENGINE, DEFAULT_PLAYER_ENGINE);
+    public static Intent getPlaybackEngineIntent(Context context, int engine) {
 
         Intent intent = new Intent();
         switch (engine) {

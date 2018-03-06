@@ -5,11 +5,10 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.Forum91PronServiceApi;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
-import com.u91porn.parser.ParseForum91Porn;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
@@ -26,27 +25,21 @@ import io.reactivex.functions.Function;
  */
 
 public class ForumPresenter extends MvpBasePresenter<ForumView> implements IForum {
-    private Forum91PronServiceApi forum91PronServiceApi;
+
     protected LifecycleProvider<Lifecycle.Event> provider;
     private int page = 1;
     private int totalPage = 1;
+    private DataManager dataManager;
 
     @Inject
-    public ForumPresenter(Forum91PronServiceApi forum91PronServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
-        this.forum91PronServiceApi = forum91PronServiceApi;
+    public ForumPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
+        this.dataManager = dataManager;
     }
 
     @Override
     public void loadForumIndexListData(final boolean pullToRefresh) {
-        forum91PronServiceApi.index()
-                .map(new Function<String, List<PinnedHeaderEntity<Forum91PronItem>>>() {
-                    @Override
-                    public List<PinnedHeaderEntity<Forum91PronItem>> apply(String s) throws Exception {
-                        BaseResult<List<PinnedHeaderEntity<Forum91PronItem>>> baseResult = ParseForum91Porn.parseIndex(s);
-                        return baseResult.getData();
-                    }
-                })
+        dataManager.loadPorn91ForumIndex()
                 .compose(RxSchedulersHelper.<List<PinnedHeaderEntity<Forum91PronItem>>>ioMainThread())
                 .compose(provider.<List<PinnedHeaderEntity<Forum91PronItem>>>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<List<PinnedHeaderEntity<Forum91PronItem>>>() {
@@ -91,11 +84,10 @@ public class ForumPresenter extends MvpBasePresenter<ForumView> implements IForu
         if (pullToRefresh) {
             page = 1;
         }
-        forum91PronServiceApi.forumdisplay(fid, page)
-                .map(new Function<String, List<Forum91PronItem>>() {
+        dataManager.loadPorn91ForumListData(fid, page)
+                .map(new Function<BaseResult<List<Forum91PronItem>>, List<Forum91PronItem>>() {
                     @Override
-                    public List<Forum91PronItem> apply(String s) throws Exception {
-                        BaseResult<List<Forum91PronItem>> baseResult = ParseForum91Porn.parseForumList(s, page);
+                    public List<Forum91PronItem> apply(BaseResult<List<Forum91PronItem>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }

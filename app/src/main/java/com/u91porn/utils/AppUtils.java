@@ -9,7 +9,6 @@ import android.support.v4.widget.SwipeRefreshLayout;
 import android.widget.ImageView;
 
 import com.u91porn.R;
-import com.u91porn.utils.constants.Keys;
 
 /**
  * @author flymegoc
@@ -37,14 +36,13 @@ public class AppUtils {
     public static String buildTitle(String title, String author, String datetime) {
         return "<h3>" + title + "</h3>"
                 + "<div align=\"right\"><span>" +
-                "作者："+author + "&nbsp;&nbsp;&nbsp;时间：" + datetime +"&nbsp;"+
+                "作者：" + author + "&nbsp;&nbsp;&nbsp;时间：" + datetime + "&nbsp;" +
                 "</span>\n" +
                 "</div>"
                 + "<HR style=\"FILTER: progid:DXImageTransform.Microsoft.Glow(color=#987cb9,strength=10)\" width=\"100%\" color=#987cb9 SIZE=1>";
     }
 
-    public static String buildHtml(String data, Context context) {
-        boolean isNightModel = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_NIGHT_MODE, false);
+    public static String buildHtml(String data, boolean isNightModel) {
         String backgroundColor;
         String fontColor;
         if (isNightModel) {

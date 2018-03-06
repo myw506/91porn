@@ -5,16 +5,13 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.exception.VideoException;
-import com.u91porn.parser.Parse91PronVideo;
+import com.u91porn.exception.MessageException;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
 
@@ -31,17 +28,15 @@ import io.reactivex.functions.Function;
 public class SearchPresenter extends MvpBasePresenter<SearchView> implements ISearch {
 
     private static final String TAG = SearchPresenter.class.getSimpleName();
-    private NoLimit91PornServiceApi noLimit91PornServiceApi;
     private LifecycleProvider<Lifecycle.Event> provider;
-    private AddressHelper addressHelper;
     private int page = 1;
     private Integer totalPage;
+    private DataManager dataManager;
 
     @Inject
-    public SearchPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
+    public SearchPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
-        this.addressHelper=addressHelper;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -51,13 +46,12 @@ public class SearchPresenter extends MvpBasePresenter<SearchView> implements ISe
         if (pullToRefresh) {
             page = 1;
         }
-        noLimit91PornServiceApi.search(viewType, page, searchType, searchId, sort, HeaderUtils.getIndexHeader(addressHelper), addressHelper.getRandomIPAddress())
-                .map(new Function<String, List<UnLimit91PornItem>>() {
+        dataManager.searchPorn91Videos(viewType, page, searchType, searchId, sort)
+                .map(new Function<BaseResult<List<UnLimit91PornItem>>, List<UnLimit91PornItem>>() {
                     @Override
-                    public List<UnLimit91PornItem> apply(String s) throws Exception {
-                        BaseResult<List<UnLimit91PornItem>> baseResult = Parse91PronVideo.parseSearchVideos(s);
+                    public List<UnLimit91PornItem> apply(BaseResult<List<UnLimit91PornItem>> baseResult) throws Exception {
                         if (baseResult.getCode() == BaseResult.ERROR_CODE) {
-                            throw new VideoException(baseResult.getMessage());
+                            throw new MessageException(baseResult.getMessage());
                         }
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();

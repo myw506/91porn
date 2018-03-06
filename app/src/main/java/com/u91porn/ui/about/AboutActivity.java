@@ -11,8 +11,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
-import com.google.gson.Gson;
-import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIPackageHelper;
 import com.qmuiteam.qmui.widget.QMUILoadingView;
 import com.qmuiteam.qmui.widget.dialog.QMUIDialog;
@@ -21,7 +19,6 @@ import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
-import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.service.UpdateDownloadService;
 import com.u91porn.ui.MvpActivity;
@@ -59,14 +56,8 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
 
     private AlertDialog alertDialog;
     private AlertDialog cleanCacheDialog;
-    private QMUIGroupListView.Section aboutSection;
+
     private QMUICommonListItemView cleanCacheQMUICommonListItemView;
-
-    @Inject
-    protected GitHubServiceApi gitHubServiceApi;
-
-    @Inject
-    protected Gson gson;
 
     @Inject
     protected UpdatePresenter updatePresenter;
@@ -212,7 +203,6 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
     @Override
     public AboutPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Logger.t(TAG).d("*************************gitHubServiceApi:" + gitHubServiceApi.toString());
         return aboutPresenter;
     }
 
@@ -271,7 +261,7 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
 
     @Override
     public void showError(String message) {
-
+        showMessage(message, TastyToast.ERROR);
     }
 
     @Override
@@ -301,7 +291,7 @@ public class AboutActivity extends MvpActivity<AboutView, AboutPresenter> implem
 
     @Override
     public void countCacheFileSizeError(String message) {
-
+        showMessage(message, TastyToast.ERROR);
     }
 
     private void dismissDialog() {

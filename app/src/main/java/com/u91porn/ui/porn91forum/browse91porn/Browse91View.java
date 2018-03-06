@@ -1,6 +1,6 @@
 package com.u91porn.ui.porn91forum.browse91porn;
 
-import com.u91porn.data.model.Content91Porn;
+import com.u91porn.data.model.Porn91ForumContent;
 import com.u91porn.ui.BaseView;
 
 /**
@@ -10,5 +10,5 @@ import com.u91porn.ui.BaseView;
  */
 
 public interface Browse91View extends BaseView{
-    void loadContentSuccess(Content91Porn content91Porn);
+    void loadContentSuccess(Porn91ForumContent porn91ForumContent);
 }

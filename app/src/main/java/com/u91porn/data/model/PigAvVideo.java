@@ -33,6 +33,8 @@ public class PigAvVideo {
     private boolean fallback;
     private List<SourcesBean> sources;
 
+    private transient List<PigAv> pigAvList;
+
     public String getPrimary() {
         return primary;
     }
@@ -111,6 +113,14 @@ public class PigAvVideo {
 
     public void setFallback(boolean fallback) {
         this.fallback = fallback;
+    }
+
+    public List<PigAv> getPigAvList() {
+        return pigAvList;
+    }
+
+    public void setPigAvList(List<PigAv> pigAvList) {
+        this.pigAvList = pigAvList;
     }
 
     public static class SourcesBean {

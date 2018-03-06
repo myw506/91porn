@@ -20,8 +20,6 @@ import com.u91porn.adapter.UnLimit91Adapter;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.utils.LoadHelperUtils;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.constants.Keys;
 
 import org.angmarch.views.NiceSpinner;
 import org.angmarch.views.NiceSpinnerAdapter;
@@ -67,9 +65,9 @@ public class SearchActivity extends MvpActivity<SearchView, SearchPresenter> imp
         ButterKnife.bind(this);
         init();
         setListener();
-        boolean isFirst = (boolean) SPUtils.get(this, Keys.KEY_SP_FIRST_IN_SEARCH_VIDEO, false);
-        if (!isFirst) {
-            SPUtils.put(this, Keys.KEY_SP_FIRST_IN_SEARCH_VIDEO, true);
+        boolean isFirst = dataManager.isFirstInSearchPorn91Video();
+        if (isFirst) {
+            dataManager.setFirstInSearchPorn91Video(false);
             showTipDialog();
         }
     }

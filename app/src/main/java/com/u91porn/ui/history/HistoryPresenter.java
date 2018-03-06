@@ -4,10 +4,12 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.orhanobut.logger.Logger;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 
 import java.util.List;
+
+import javax.inject.Inject;
 
 /**
  * 浏览历史，只有观看视频，并解析出视频地址保存之后才会被记录
@@ -19,12 +21,13 @@ import java.util.List;
 public class HistoryPresenter extends MvpBasePresenter<HistoryView> implements IHistory {
 
     private static final String TAG = HistoryPresenter.class.getSimpleName();
-    private AppDataManager appDataManager;
+    private DataManager dataManager;
     private int page = 1;
     private int pageSize = 10;
 
-    public HistoryPresenter(AppDataManager appDataManager) {
-        this.appDataManager = appDataManager;
+    @Inject
+    public HistoryPresenter(DataManager dataManager) {
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -33,7 +36,7 @@ public class HistoryPresenter extends MvpBasePresenter<HistoryView> implements I
         if (pullToRefresh) {
             page = 1;
         }
-        final List<UnLimit91PornItem> unLimit91PornItemList = appDataManager.loadHistoryData(page, pageSize);
+        final List<UnLimit91PornItem> unLimit91PornItemList = dataManager.loadHistoryData(page, pageSize);
         ifViewAttached(new ViewAction<HistoryView>() {
             @Override
             public void run(@NonNull HistoryView view) {

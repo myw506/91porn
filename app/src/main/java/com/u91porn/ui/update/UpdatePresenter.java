@@ -3,21 +3,16 @@ package com.u91porn.ui.update;
 import android.arch.lifecycle.Lifecycle;
 import android.support.annotation.NonNull;
 
-import com.google.gson.Gson;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.GitHubServiceApi;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.rxjava.CallBackWrapper;
-
-import org.jsoup.Jsoup;
-import org.jsoup.nodes.Document;
 
 import javax.inject.Inject;
 
 import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
 
 /**
@@ -27,16 +22,15 @@ import io.reactivex.schedulers.Schedulers;
 
 public class UpdatePresenter extends MvpBasePresenter<UpdateView> implements IUpdate {
 
-    private GitHubServiceApi gitHubServiceApi;
     private final static String CHECK_UPDATE_URL = "https://github.com/techGay/91porn/blob/master/version.txt";
-    private Gson gson;
     private LifecycleProvider<Lifecycle.Event> provider;
 
+    private DataManager dataManager;
+
     @Inject
-    public UpdatePresenter(GitHubServiceApi gitHubServiceApi, Gson gson, LifecycleProvider<Lifecycle.Event> provider) {
-        this.gitHubServiceApi = gitHubServiceApi;
-        this.gson = gson;
+    public UpdatePresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -45,15 +39,7 @@ public class UpdatePresenter extends MvpBasePresenter<UpdateView> implements IUp
     }
 
     public void checkUpdate(final int versionCode, final UpdateListener updateListener) {
-        gitHubServiceApi.checkUpdate(CHECK_UPDATE_URL)
-                .map(new Function<String, UpdateVersion>() {
-                    @Override
-                    public UpdateVersion apply(String s) throws Exception {
-                        Document doc = Jsoup.parse(s);
-                        String text = doc.select("table.highlight").text();
-                        return gson.fromJson(text, UpdateVersion.class);
-                    }
-                })
+        dataManager.checkUpdate(CHECK_UPDATE_URL)
                 .subscribeOn(Schedulers.io())
                 .observeOn(AndroidSchedulers.mainThread())
                 .compose(provider.<UpdateVersion>bindUntilEvent(Lifecycle.Event.ON_DESTROY))

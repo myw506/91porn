@@ -1,7 +1,6 @@
 package com.u91porn.utils;
 
 import android.content.Context;
-import android.os.Environment;
 import android.support.annotation.NonNull;
 import android.text.format.Formatter;
 
@@ -17,7 +16,7 @@ import java.io.File;
 public class AppCacheUtils {
     public final static long MAX_VIDEO_CACHE_SIZE = 800 * 1024 * 1024;
     private final static String RXCACHE_DIR = "/rxcache";
-    private final static String VIDEO_CACHE_DIR = "/video-cache";
+    private final static String VIDEO_CACHE_DIR = "/pigAvVideoUrl-cache";
     private final static String GLIDE_DISCACHE_DIR = "/glide_cache_dir";
 
     /**

@@ -14,10 +14,12 @@ rxJava+retrofit+rxCache+mvp+Jsoup+dagger2
 7. 浏览论坛免费板块帖子
 8. 额外的图片板块
 
-**注：v1.1.3版本以及之后不在内置地址，需自行手动设置地址方可使用，否则可能报错或导致程序崩溃**
+**注：v1.1.3版本以及之后不在内置地址，需自行手动设置地址方可使用（特别注意区别是“http”还是“https”），否则可能报错或导致程序崩溃**
 
 **Tip：想获得更好的使用体验请挂代理**
 
+**关于地址问题： 
+ 一开始考虑不全，没想那么多，所以内置了，后来才意识到问题的严重性。不内置地址这项目只是一个工具，相当于浏览器，没有这个工具，你不论在手机或者电脑上输入地址一样可以访问到，所以以后【【【请不要在此讨论地址以及发布地址】】】，因为这不论对于我还是项目，甚至于GitHub来说都是好的，况且GitHub本身是技术交流的地方，我的初衷亦是如此。**
 ### 版本更新：
 
 ##### 2018年3月03日    ----v1.1.5
@@ -41,9 +43,9 @@ rxJava+retrofit+rxCache+mvp+Jsoup+dagger2
 [查看更多版本更新日志...](https://github.com/techGay/91porn/blob/master/UPDATE_LOG.md)
 
 ### 下载APK(当然你也可以下载源码自己编译)
-[在apk目录下会上传最新版本，选择下载即可](https://github.com/techGay/91porn/tree/master/apk)
+在[apk](https://github.com/techGay/91porn/tree/master/apk)目录下会上传最新版本，选择下载即可
 
-[或者这里也可以下载](https://bitbucket.org/techGay/91porn/downloads)
+或者[这里](https://bitbucket.org/techGay/91porn/downloads)也可以下载
 
 **注：v1.0.3版本之后已经增加了自动更新功能，不必手动下载升级了**
 

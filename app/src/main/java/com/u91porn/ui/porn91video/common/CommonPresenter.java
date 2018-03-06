@@ -2,18 +2,13 @@ package com.u91porn.ui.porn91video.common;
 
 import android.arch.lifecycle.Lifecycle;
 import android.support.annotation.NonNull;
-import android.text.TextUtils;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.rxjava.CallBackWrapper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
-import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
@@ -21,12 +16,8 @@ import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.rx_cache2.DynamicKeyGroup;
-import io.rx_cache2.EvictDynamicKey;
-import io.rx_cache2.Reply;
 
 /**
  * @author flymegoc
@@ -34,8 +25,7 @@ import io.rx_cache2.Reply;
  */
 
 public class CommonPresenter extends MvpBasePresenter<CommonView> implements ICommon {
-    private NoLimit91PornServiceApi mNoLimit91PornServiceApi;
-    private CacheProviders cacheProviders;
+
     private Integer totalPage = 1;
     private int page = 1;
     private LifecycleProvider<Lifecycle.Event> provider;
@@ -43,18 +33,12 @@ public class CommonPresenter extends MvpBasePresenter<CommonView> implements ICo
      * 本次强制刷新过那下面的请求也一起刷新
      */
     private boolean isLoadMoreCleanCache = false;
-    private AddressHelper addressHelper;
+    private DataManager dataManager;
 
     @Inject
-    public CommonPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
-        this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
-        this.cacheProviders = cacheProviders;
+    public CommonPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
-        this.addressHelper=addressHelper;
-    }
-
-    public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi mNoLimit91PornServiceApi) {
-        this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -65,35 +49,17 @@ public class CommonPresenter extends MvpBasePresenter<CommonView> implements ICo
             page = 1;
             isLoadMoreCleanCache = true;
         }
-        //RxCache条件区别
-        String condition;
-        if (TextUtils.isEmpty(m)) {
-            condition = category;
-        } else {
-            condition = category + m;
-        }
-        DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(condition, page);
-        EvictDynamicKey evictDynamicKey = new EvictDynamicKey(cleanCache || isLoadMoreCleanCache);
-
-        Observable<String> categoryPage = mNoLimit91PornServiceApi.getCategoryPage(category, viewType, page, m, HeaderUtils.getIndexHeader(addressHelper));
-        cacheProviders.getCategoryPage(categoryPage, dynamicKeyGroup, evictDynamicKey)
-                .map(new Function<Reply<String>, String>() {
+        dataManager.loadPorn91VideoByCategory(category, viewType, page, m, cleanCache, isLoadMoreCleanCache)
+                .map(new Function<BaseResult<List<UnLimit91PornItem>>, List<UnLimit91PornItem>>() {
                     @Override
-                    public String apply(Reply<String> responseBody) throws Exception {
-                        return responseBody.getData();
-                    }
-                })
-                .map(new Function<String, List<UnLimit91PornItem>>() {
-                    @Override
-                    public List<UnLimit91PornItem> apply(String s) throws Exception {
-                        BaseResult<List<UnLimit91PornItem>> baseResult = Parse91PronVideo.parseHot(s);
+                    public List<UnLimit91PornItem> apply(BaseResult<List<UnLimit91PornItem>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }
                         return baseResult.getData();
                     }
                 })
-                .retryWhen(new RetryWhenProcess(2))
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<List<UnLimit91PornItem>>ioMainThread())
                 .compose(provider.<List<UnLimit91PornItem>>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<List<UnLimit91PornItem>>() {

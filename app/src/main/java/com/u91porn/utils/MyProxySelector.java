@@ -34,7 +34,7 @@ public class MyProxySelector extends ProxySelector {
     @Override
     public List<Proxy> select(URI uri) {
 //        //暂时只支持91porn视频
-//        String url = (String) SPUtils.get(context, Keys.KEY_SP_CUSTOM_ADDRESS, "");
+//        String url = (String) SPUtils.get(context, Keys.KEY_SP_PORN_91_VIDEO_ADDRESS, "");
 //        //如果代理地址不为空，且端口正确设置Http代理
 //        boolean isOpenProxy = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
 //        String proxyHost = (String) SPUtils.get(context, Keys.KEY_SP_PROXY_IP_ADDRESS, "");

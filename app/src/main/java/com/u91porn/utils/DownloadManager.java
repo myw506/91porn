@@ -8,12 +8,15 @@ import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
 import com.orhanobut.logger.Logger;
 import com.u91porn.BuildConfig;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.MyApplication;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
+
+import javax.inject.Inject;
 
 
 /**
@@ -24,7 +27,12 @@ import java.util.List;
 
 public class DownloadManager {
     private static final String TAG = DownloadManager.class.getSimpleName();
-    private AppDataManager appDataManager = AppDataManager.getInstance();
+    @Inject
+    protected DataManager dataManager;
+
+    private DownloadManager() {
+        MyApplication.getInstance().getApplicationComponent().inject(this);
+    }
 
     private final static class HolderClass {
         private final static DownloadManager INSTANCE = new DownloadManager();
@@ -128,7 +136,7 @@ public class DownloadManager {
      * @param task 任务信息
      */
     private void saveDownloadInfo(BaseDownloadTask task) {
-        UnLimit91PornItem unLimit91PornItem = appDataManager.findByDownloadId(task.getId());
+        UnLimit91PornItem unLimit91PornItem = dataManager.findUnLimit91PornItemByDownloadId(task.getId());
         if (unLimit91PornItem == null) {
             //不存在的任务清除掉
             FileDownloader.getImpl().clear(task.getId(), task.getPath());
@@ -155,7 +163,7 @@ public class DownloadManager {
         }
         unLimit91PornItem.setSpeed(task.getSpeed());
         unLimit91PornItem.setStatus(task.getStatus());
-        appDataManager.update(unLimit91PornItem);
+        dataManager.updateUnLimit91PornItem(unLimit91PornItem);
         if (task.getStatus() == FileDownloadStatus.completed) {
             complete(task);
         } else {

@@ -1,24 +1,30 @@
 package com.u91porn.data.db;
 
 import android.content.Context;
-import android.database.sqlite.SQLiteDatabase;
 
 import com.github.yuweiguocn.library.greendao.MigrationHelper;
 import com.u91porn.data.db.dao.CategoryDao;
 import com.u91porn.data.db.dao.DaoMaster;
 import com.u91porn.data.db.dao.UnLimit91PornItemDao;
 import com.u91porn.data.db.dao.VideoResultDao;
+import com.u91porn.di.ApplicationContext;
+import com.u91porn.di.DatabaseInfo;
 
 import org.greenrobot.greendao.database.Database;
+
+import javax.inject.Inject;
+import javax.inject.Singleton;
 
 /**
  * @author flymegoc
  * @date 2018/1/13
  */
-
+@Singleton
 public class MySQLiteOpenHelper extends DaoMaster.OpenHelper {
-    public MySQLiteOpenHelper(Context context, String name, SQLiteDatabase.CursorFactory factory) {
-        super(context, name, factory);
+
+    @Inject
+    public MySQLiteOpenHelper(@ApplicationContext Context context, @DatabaseInfo String name) {
+        super(context, name);
     }
 
     @Override

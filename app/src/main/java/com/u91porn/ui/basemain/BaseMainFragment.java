@@ -35,7 +35,6 @@ import com.u91porn.BuildConfig;
 import com.u91porn.R;
 import com.u91porn.adapter.BaseMainFragmentAdapter;
 import com.u91porn.adapter.SortCategoryAdapter;
-import com.u91porn.data.AppDataManager;
 import com.u91porn.data.model.Category;
 import com.u91porn.eventbus.LowMemoryEvent;
 import com.u91porn.ui.MvpFragment;
@@ -50,6 +49,8 @@ import org.greenrobot.eventbus.ThreadMode;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import butterknife.BindView;
 import butterknife.ButterKnife;
@@ -81,6 +82,9 @@ public abstract class BaseMainFragment extends MvpFragment<BaseMainView, BaseMai
     private FragmentManager fragmentManager;
     private int currentSelectPosition = 0;
     private boolean isBackground = false;
+
+    @Inject
+    BaseMainPresenter baseMainPresenter;
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -115,7 +119,7 @@ public abstract class BaseMainFragment extends MvpFragment<BaseMainView, BaseMai
     @Override
     public BaseMainPresenter createPresenter() {
         getActivityComponent().inject(this);
-        return new BaseMainPresenter(AppDataManager.getInstance());
+        return baseMainPresenter;
     }
 
     @Override

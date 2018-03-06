@@ -5,12 +5,9 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.Api;
-import com.u91porn.data.network.Mm99ServiceApi;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.Mm99;
-import com.u91porn.parser.Parse99Mm;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
@@ -20,9 +17,6 @@ import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
-import io.rx_cache2.DynamicKeyGroup;
-import io.rx_cache2.EvictDynamicKeyGroup;
-import io.rx_cache2.Reply;
 
 /**
  * @author flymegoc
@@ -30,17 +24,16 @@ import io.rx_cache2.Reply;
  */
 
 public class Mm99Presenter extends MvpBasePresenter<Mm99View> implements IMm99 {
-    private CacheProviders cacheProviders;
-    private Mm99ServiceApi mm99ServiceApi;
+
     private int page = 1;
     private int totalPage = 1;
     private LifecycleProvider<Lifecycle.Event> provider;
+    private DataManager dataManager;
 
     @Inject
-    public Mm99Presenter(CacheProviders cacheProviders, Mm99ServiceApi mm99ServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
-        this.cacheProviders = cacheProviders;
-        this.mm99ServiceApi = mm99ServiceApi;
+    public Mm99Presenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
+        this.dataManager = dataManager;
     }
 
     @Override
@@ -49,20 +42,10 @@ public class Mm99Presenter extends MvpBasePresenter<Mm99View> implements IMm99 {
             page = 1;
             totalPage = 1;
         }
-        String url = buildUrl(category, page);
-        DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(category, page);
-        EvictDynamicKeyGroup evictDynamicKeyGroup = new EvictDynamicKeyGroup(cleanCache);
-        cacheProviders.cacheWithLimitTime(mm99ServiceApi.imageList(url), dynamicKeyGroup, evictDynamicKeyGroup)
-                .map(new Function<Reply<String>, String>() {
+        dataManager.list99Mm(category, page, cleanCache)
+                .map(new Function<BaseResult<List<Mm99>>, List<Mm99>>() {
                     @Override
-                    public String apply(Reply<String> stringReply) throws Exception {
-                        return stringReply.getData();
-                    }
-                })
-                .map(new Function<String, List<Mm99>>() {
-                    @Override
-                    public List<Mm99> apply(String s) throws Exception {
-                        BaseResult<List<Mm99>> baseResult = Parse99Mm.parse99MmList(s, page);
+                    public List<Mm99> apply(BaseResult<List<Mm99>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }
@@ -113,40 +96,5 @@ public class Mm99Presenter extends MvpBasePresenter<Mm99View> implements IMm99 {
                         });
                     }
                 });
-    }
-
-    private String buildUrl(String category, int page) {
-        switch (category) {
-            case "meitui":
-                if (page == 1) {
-                    return Api.APP_99_MM_DOMAIN + "meitui/";
-                } else {
-                    return Api.APP_99_MM_DOMAIN + "meitui/mm_1_" + page + ".html";
-                }
-
-            case "xinggan":
-                if (page == 1) {
-                    return Api.APP_99_MM_DOMAIN + "xinggan/";
-                } else {
-                    return Api.APP_99_MM_DOMAIN + "xinggan/mm_2_" + page + ".html";
-                }
-
-            case "qingchun":
-                if (page == 1) {
-                    return Api.APP_99_MM_DOMAIN + "qingchun/";
-                } else {
-                    return Api.APP_99_MM_DOMAIN + "qingchun/mm_3_" + page + ".html";
-                }
-
-            case "hot":
-                if (page == 1) {
-                    return Api.APP_99_MM_DOMAIN + "hot/";
-                } else {
-                    return Api.APP_99_MM_DOMAIN + "hot/mm_4_" + page + ".html";
-                }
-
-            default:
-                return Api.APP_99_MM_DOMAIN;
-        }
     }
 }

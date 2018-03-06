@@ -4,19 +4,16 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.text.TextUtils;
-import android.util.Base64;
 
 import com.orhanobut.logger.Logger;
 import com.u91porn.R;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.main.MainActivity;
 import com.u91porn.ui.user.UserPresenter;
 import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
-import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
-import com.u91porn.utils.constants.Keys;
 
 import javax.inject.Inject;
 
@@ -26,7 +23,6 @@ import javax.inject.Inject;
 public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> implements SplashView {
 
     private static final String TAG = SplashActivity.class.getSimpleName();
-    private String password;
 
     @Inject
     protected AddressHelper addressHelper;
@@ -36,6 +32,9 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
 
     @Inject
     protected SplashPresenter splashPresenter;
+
+    @Inject
+    protected DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,15 +53,12 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
             startMain();
         }
         setContentView(R.layout.activity_splash);
-        String username = (String) SPUtils.get(this, Keys.KEY_SP_USER_LOGIN_USERNAME, "");
-        String ep = (String) SPUtils.get(this, Keys.KEY_SP_USER_LOGIN_PASSWORD, "");
-        if (!TextUtils.isEmpty(ep)) {
-            password = new String(Base64.decode(ep.getBytes(), Base64.DEFAULT));
-        }
+        String username = dataManager.getPorn91VideoLoginUserName();
+        String password = dataManager.getPorn91VideoLoginUserPassword();
 
-        boolean isAutoLogin = (boolean) SPUtils.get(this, Keys.KEY_SP_USER_AUTO_LOGIN, false);
+        boolean isAutoLogin = dataManager.isPorn91VideoUserAutoLogin();
 
-        if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password) && isAutoLogin) {
+        if (!TextUtils.isEmpty(username) && !TextUtils.isEmpty(password) && isAutoLogin && !TextUtils.isEmpty(addressHelper.getVideo91PornAddress())) {
             String captcha = UserHelper.randomCaptcha();
             login(username, password, captcha);
         } else {
@@ -71,17 +67,7 @@ public class SplashActivity extends MvpActivity<SplashView, SplashPresenter> imp
     }
 
     private void login(String username, String password, String captcha) {
-        String f = "2192328484";
-        String f2 = "2a0e17836fe7a3af469c00456b506eb9";
-        String acl = "Log In";
-        String x = "47";
-        String y = "12";
-        if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
-            return;
-        } else {
-            startMain();
-        }
-        presenter.login(username, password, f, f2, captcha, acl, x, y, HeaderUtils.getUserHeader(addressHelper, "login"));
+        presenter.login(username, password, captcha);
     }
 
     private void startMain() {

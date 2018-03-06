@@ -5,7 +5,7 @@ import android.text.TextUtils;
 import com.orhanobut.logger.Logger;
 import com.u91porn.adapter.BaseHeaderAdapter;
 import com.u91porn.data.model.BaseResult;
-import com.u91porn.data.model.Content91Porn;
+import com.u91porn.data.model.Porn91ForumContent;
 import com.u91porn.data.model.Forum91PronItem;
 import com.u91porn.data.model.PinnedHeaderEntity;
 import com.u91porn.utils.StringUtils;
@@ -192,18 +192,18 @@ public class ParseForum91Porn {
         return baseResult;
     }
 
-    public static BaseResult<Content91Porn> parseContent(String html, boolean isNightModel,String baseUrl) {
-        BaseResult<Content91Porn> baseResult = new BaseResult<>();
+    public static BaseResult<Porn91ForumContent> parseContent(String html, boolean isNightModel, String baseUrl) {
+        BaseResult<Porn91ForumContent> baseResult = new BaseResult<>();
         Document doc = Jsoup.parse(html);
 
         Element content = doc.getElementsByClass("t_msgfontfix").first();
 
         if (content == null) {
             List<String> stringList = new ArrayList<>();
-            Content91Porn content91Porn = new Content91Porn();
-            content91Porn.setImageList(stringList);
-            content91Porn.setContent("暂不支持解析该网页类型或者帖子已被封禁了");
-            baseResult.setData(content91Porn);
+            Porn91ForumContent porn91ForumContent = new Porn91ForumContent();
+            porn91ForumContent.setImageList(stringList);
+            porn91ForumContent.setContent("暂不支持解析该网页类型或者帖子已被封禁了");
+            baseResult.setData(porn91ForumContent);
             return baseResult;
         }
         Logger.t(TAG).d(content);
@@ -248,11 +248,11 @@ public class ParseForum91Porn {
             element.attr("onclick", "HostApp.toast(\"" + imgUrl + "\")");
         }
 
-        Content91Porn content91Porn = new Content91Porn();
+        Porn91ForumContent porn91ForumContent = new Porn91ForumContent();
         String contentStr = content.html().replace("<dd", "<dt").replace("</dd>", "</dt>");
-        content91Porn.setContent(contentStr);
-        content91Porn.setImageList(stringList);
-        baseResult.setData(content91Porn);
+        porn91ForumContent.setContent(contentStr);
+        porn91ForumContent.setImageList(stringList);
+        baseResult.setData(porn91ForumContent);
         return baseResult;
     }
 }

@@ -1,4 +1,6 @@
-package com.u91porn.data.network;
+package com.u91porn.data.network.apiservice;
+
+import com.u91porn.data.network.Api;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;
@@ -15,40 +17,40 @@ public interface MeiZiTuServiceApi {
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("page/{page}/")
-    Observable<String> index(@Path("page") int page);
+    Observable<String> meiZiTuIndex(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("hot/page/{page}/")
-    Observable<String> hot(@Path("page") int page);
+    Observable<String> meiZiTuHot(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("best/page/{page}/")
-    Observable<String> best(@Path("page") int page);
+    Observable<String> meiZiTuBest(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("xinggan/page/{page}/")
-    Observable<String> sexy(@Path("page") int page);
+    Observable<String> meiZiTuSexy(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("japan/page/{page}/")
-    Observable<String> japan(@Path("page") int page);
+    Observable<String> meiZiTuJapan(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("taiwan/page/{page}/")
-    Observable<String> taiwan(@Path("page") int page);
+    Observable<String> meiZiTuJaiwan(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("mm/page/{page}/")
-    Observable<String> mm(@Path("page") int page);
+    Observable<String> meiZiTuMm(@Path("page") int page);
 
     @Headers({"Referer: " + Api.APP_MEIZITU_DOMAIN,
             "Domain-Name: " + Api.MEI_ZI_TU_DOMAIN_NAME})
     @GET("{id}")
-    Observable<String> imageList(@Path("id") int id);
+    Observable<String> meiZiTuImageList(@Path("id") int id);
 }

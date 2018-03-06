@@ -1,4 +1,6 @@
-package com.u91porn.data.network;
+package com.u91porn.data.network.apiservice;
+
+import com.u91porn.data.network.Api;
 
 import io.reactivex.Observable;
 import retrofit2.http.GET;

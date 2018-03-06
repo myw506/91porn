@@ -6,30 +6,24 @@ import android.text.TextUtils;
 
 import com.bugsnag.android.Bugsnag;
 import com.bugsnag.android.Severity;
-import com.google.gson.Gson;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
-import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.cache.CacheProviders;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.BaseResult;
-import com.u91porn.data.model.Favorite;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.User;
+import com.u91porn.di.PerActivity;
 import com.u91porn.exception.ApiException;
-import com.u91porn.exception.FavoriteException;
-import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.SDCardUtils;
 
 import java.io.File;
 import java.util.List;
+
+import javax.inject.Inject;
 
 import de.greenrobot.common.io.FileUtils;
 import io.reactivex.Observable;
@@ -39,21 +33,16 @@ import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.disposables.Disposable;
 import io.reactivex.functions.Function;
 import io.reactivex.schedulers.Schedulers;
-import io.rx_cache2.DynamicKeyGroup;
-import io.rx_cache2.EvictDynamicKey;
-import io.rx_cache2.Reply;
 
 /**
  * @author flymegoc
  * @date 2017/11/25
  * @describe
  */
-
+@PerActivity
 public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements IFavorite {
     private static final String TAG = FavoriteListener.class.getSimpleName();
-    private AppDataManager appDataManager;
-    private NoLimit91PornServiceApi noLimit91PornServiceApi;
-    private CacheProviders cacheProviders;
+
     private User user;
     private Integer totalPage = 1;
     private int page = 1;
@@ -62,59 +51,25 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
      * 本次强制刷新过那下面的请求也一起刷新
      */
     private boolean cleanCache = false;
-    private String uploadMsg;
-    private AddressHelper addressHelper;
-    public FavoritePresenter(AppDataManager appDataManager, NoLimit91PornServiceApi noLimit91PornServiceApi, CacheProviders cacheProviders, User user, LifecycleProvider<Lifecycle.Event> provider, AddressHelper addressHelper) {
-        this.appDataManager = appDataManager;
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
-        this.cacheProviders = cacheProviders;
+
+    private DataManager dataManager;
+
+    @Inject
+    public FavoritePresenter(DataManager dataManager, User user, LifecycleProvider<Lifecycle.Event> provider) {
+        this.dataManager = dataManager;
         this.user = user;
         this.provider = provider;
-        this.addressHelper=addressHelper;
     }
 
     @Override
-    public void favorite(String cpaintFunction, String uId, String videoId, String ownnerId, String responseType, String referer) {
-        favorite(cpaintFunction, uId, videoId, ownnerId, responseType, referer, null);
+    public void favorite(String uId, String videoId, String ownnerId) {
+        favorite(uId, videoId, ownnerId, null);
     }
 
-    public void favorite(String cpaintFunction, String uId, String videoId, String ownnerId, String responseType, String referer, final FavoriteListener favoriteListener) {
-        noLimit91PornServiceApi.favoriteVideo(cpaintFunction, uId, videoId, ownnerId, responseType, referer)
-                .map(new Function<String, Favorite>() {
-                    @Override
-                    public Favorite apply(String s) throws Exception {
-                        Logger.t(TAG).d("favoriteStr: " + s);
-                        uploadMsg = s;
-                        return new Gson().fromJson(s, Favorite.class);
-                    }
-                })
-                .map(new Function<Favorite, Integer>() {
-                    @Override
-                    public Integer apply(Favorite favorite) throws Exception {
-                        return favorite.getAddFavMessage().get(0).getData();
-                    }
-                })
-                .map(new Function<Integer, String>() {
-                    @Override
-                    public String apply(Integer code) throws Exception {
-                        String msg;
-                        switch (code) {
-                            case Favorite.FAVORITE_SUCCESS:
-                                msg = "收藏成功";
-                                break;
-                            case Favorite.FAVORITE_FAIL:
-                                throw new FavoriteException("收藏失败");
-                            case Favorite.FAVORITE_ALREADY:
-                                throw new FavoriteException("已经收藏过了");
-                            case Favorite.FAVORITE_YOURSELF:
-                                throw new FavoriteException("不能收藏自己的视频");
-                            default:
-                                throw new FavoriteException("收藏失败");
-                        }
-                        return msg;
-                    }
-                })
-                .retryWhen(new RetryWhenProcess(2))
+    public void favorite(String uId, String videoId, String ownnerId, final FavoriteListener favoriteListener) {
+
+        dataManager.favoritePorn91Video(uId, videoId, ownnerId)
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<String>ioMainThread())
                 .compose(provider.<String>bindUntilEvent(Lifecycle.Event.ON_STOP))
                 .subscribe(new CallBackWrapper<String>() {
@@ -141,14 +96,6 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
                     @Override
                     public void onError(final String msg, int code) {
                         if (code == ApiException.Error.NULLPOINTER_EXCEPTION) {
-                            if (!TextUtils.isEmpty(uploadMsg)) {
-                                if (user != null) {
-                                    uploadMsg = uploadMsg + user.toString();
-                                }
-                                //仅做分析
-                                Bugsnag.notify(new Throwable("Info: " + uploadMsg), Severity.WARNING);
-                            }
-
                             final String message = "收藏失败";
                             if (favoriteListener != null) {
                                 favoriteListener.onError(message);
@@ -178,7 +125,7 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
 
 
     @Override
-    public void loadRemoteFavoriteData(final boolean pullToRefresh, String referer) {
+    public void loadRemoteFavoriteData(final boolean pullToRefresh) {
         //如果刷新则重置页数
         if (pullToRefresh) {
             page = 1;
@@ -201,29 +148,17 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
             });
             return;
         }
-        DynamicKeyGroup dynamicKeyGroup = new DynamicKeyGroup(condition, page);
-        EvictDynamicKey evictDynamicKey = new EvictDynamicKey(cleanCache);
-
-        Observable<String> favoriteObservable = noLimit91PornServiceApi.myFavorite(page, referer);
-
-        cacheProviders.getFavorite(favoriteObservable, dynamicKeyGroup, evictDynamicKey)
-                .map(new Function<Reply<String>, String>() {
+        dataManager.loadPorn91MyFavoriteVideos(condition, page, cleanCache)
+                .map(new Function<BaseResult<List<UnLimit91PornItem>>, List<UnLimit91PornItem>>() {
                     @Override
-                    public String apply(Reply<String> responseBody) throws Exception {
-                        return responseBody.getData();
-                    }
-                })
-                .map(new Function<String, List<UnLimit91PornItem>>() {
-                    @Override
-                    public List<UnLimit91PornItem> apply(String s) throws Exception {
-                        BaseResult<List<UnLimit91PornItem>> baseResult = Parse91PronVideo.parseMyFavorite(s);
+                    public List<UnLimit91PornItem> apply(BaseResult<List<UnLimit91PornItem>> baseResult) throws Exception {
                         if (page == 1) {
                             totalPage = baseResult.getTotalPage();
                         }
                         return baseResult.getData();
                     }
                 })
-                .retryWhen(new RetryWhenProcess(2))
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<List<UnLimit91PornItem>>ioMainThread())
                 .compose(provider.<List<UnLimit91PornItem>>bindUntilEvent(Lifecycle.Event.ON_STOP))
                 .subscribe(new CallBackWrapper<List<UnLimit91PornItem>>() {
@@ -281,27 +216,8 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
 
     @Override
     public void deleteFavorite(String rvid) {
-        String removeFavour = "Remove Favorite";
-        noLimit91PornServiceApi.deleteMyFavorite(rvid, removeFavour, 45, 19, HeaderUtils.getFavHeader(addressHelper))
-                .map(new Function<String, BaseResult<List<UnLimit91PornItem>>>() {
-                    @Override
-                    public BaseResult<List<UnLimit91PornItem>> apply(String s) throws Exception {
-                        return Parse91PronVideo.parseMyFavorite(s);
-                    }
-                })
-                .map(new Function<BaseResult<List<UnLimit91PornItem>>, List<UnLimit91PornItem>>() {
-                    @Override
-                    public List<UnLimit91PornItem> apply(BaseResult<List<UnLimit91PornItem>> baseResult) throws Exception {
-                        if (baseResult.getCode() == BaseResult.ERROR_CODE) {
-                            throw new FavoriteException(baseResult.getMessage());
-                        }
-                        if (baseResult.getCode() != BaseResult.SUCCESS_CODE || TextUtils.isEmpty(baseResult.getMessage())) {
-                            throw new FavoriteException("删除失败了");
-                        }
-                        return baseResult.getData();
-                    }
-                })
-                .retryWhen(new RetryWhenProcess(2))
+        dataManager.deletePorn91MyFavoriteVideo(rvid)
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<List<UnLimit91PornItem>>ioMainThread())
                 .compose(provider.<List<UnLimit91PornItem>>bindUntilEvent(Lifecycle.Event.ON_STOP))
                 .subscribe(new CallBackWrapper<List<UnLimit91PornItem>>() {
@@ -347,7 +263,7 @@ public class FavoritePresenter extends MvpBasePresenter<FavoriteView> implements
         Observable.create(new ObservableOnSubscribe<List<UnLimit91PornItem>>() {
             @Override
             public void subscribe(ObservableEmitter<List<UnLimit91PornItem>> e) throws Exception {
-                List<UnLimit91PornItem> unLimit91PornItems = appDataManager.loadAllLimit91PornItems();
+                List<UnLimit91PornItem> unLimit91PornItems = dataManager.loadAllLimit91PornItems();
                 e.onNext(unLimit91PornItems);
                 e.onComplete();
             }

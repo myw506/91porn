@@ -5,19 +5,14 @@ import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.User;
-import com.u91porn.exception.MessageException;
-import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
-import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.UserHelper;
 
 import javax.inject.Inject;
 
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
 
 /**
  * 用户登录
@@ -27,33 +22,23 @@ import io.reactivex.functions.Function;
  */
 
 public class UserPresenter extends MvpBasePresenter<UserView> implements IUser {
-    private NoLimit91PornServiceApi noLimit91PornServiceApi;
+
     private LifecycleProvider<Lifecycle.Event> provider;
+    private DataManager dataManager;
 
     @Inject
-    public UserPresenter(NoLimit91PornServiceApi noLimit91PornServiceApi, LifecycleProvider<Lifecycle.Event> provider) {
-        this.noLimit91PornServiceApi = noLimit91PornServiceApi;
+    public UserPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
         this.provider = provider;
+        this.dataManager = dataManager;
     }
 
     @Override
-    public void login(String username, String password, String fingerprint, String fingerprint2, String captcha, String actionlogin, String x, String y, String referer) {
-        login(username, password, fingerprint, fingerprint2, captcha, actionlogin, x, y, referer, null);
+    public void login(String username, String password, String captcha) {
+        login(username, password, captcha, null);
     }
 
-    public void login(String username, String password, String fingerprint, String fingerprint2, String captcha, String actionlogin, String x, String y, String referer, final LoginListener loginListener) {
-        noLimit91PornServiceApi.login(username, password, fingerprint, fingerprint2, captcha, actionlogin, x, y, referer)
-                .retryWhen(new RetryWhenProcess(2))
-                .map(new Function<String, User>() {
-                    @Override
-                    public User apply(String s) throws Exception {
-                        if (!UserHelper.isPornVideoLoginSuccess(s)) {
-                            String errorInfo = Parse91PronVideo.parseErrorInfo(s);
-                            throw new MessageException(errorInfo);
-                        }
-                        return Parse91PronVideo.parseUserInfo(s);
-                    }
-                })
+    public void login(String username, String password, String captcha, final LoginListener loginListener) {
+        dataManager.userLoginPorn91Video(username, password, captcha)
                 .compose(RxSchedulersHelper.<User>ioMainThread())
                 .compose(provider.<User>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<User>() {
@@ -103,19 +88,8 @@ public class UserPresenter extends MvpBasePresenter<UserView> implements IUser {
     }
 
     @Override
-    public void register(String next, String username, String password1, String password2, String email, String captchaInput, String fingerprint, String vip, String actionSignup, String submitX, String submitY, String ipAddress, String referer) {
-        noLimit91PornServiceApi.register(next, username, password1, password2, email, captchaInput, fingerprint, vip, actionSignup, submitX, submitY, referer, ipAddress)
-                .retryWhen(new RetryWhenProcess(2))
-                .map(new Function<String, User>() {
-                    @Override
-                    public User apply(String s) throws Exception {
-                        if (!UserHelper.isPornVideoLoginSuccess(s)) {
-                            String errorInfo = Parse91PronVideo.parseErrorInfo(s);
-                            throw new MessageException(errorInfo);
-                        }
-                        return Parse91PronVideo.parseUserInfo(s);
-                    }
-                })
+    public void register(String username, String password1, String password2, String email, String captchaInput) {
+        dataManager.userRegisterPorn91Video(username, password1, password2, email, captchaInput)
                 .compose(RxSchedulersHelper.<User>ioMainThread())
                 .compose(provider.<User>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<User>() {

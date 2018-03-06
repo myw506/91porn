@@ -4,27 +4,18 @@ import android.arch.lifecycle.Lifecycle;
 import android.support.annotation.NonNull;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
-import com.orhanobut.logger.Logger;
 import com.trello.rxlifecycle2.LifecycleProvider;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
-import com.u91porn.parser.Parse91PronVideo;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RetryWhenProcess;
 import com.u91porn.rxjava.RxSchedulersHelper;
-import com.u91porn.utils.AddressHelper;
-import com.u91porn.utils.HeaderUtils;
 
 import java.util.List;
 
 import javax.inject.Inject;
 
-import io.reactivex.Observable;
 import io.reactivex.disposables.Disposable;
-import io.reactivex.functions.Function;
-import io.rx_cache2.EvictProvider;
-import io.rx_cache2.Reply;
 
 /**
  * @author flymegoc
@@ -34,20 +25,13 @@ import io.rx_cache2.Reply;
 
 public class IndexPresenter extends MvpBasePresenter<IndexView> implements IIndex {
     private static final String TAG = IndexPresenter.class.getSimpleName();
-    private NoLimit91PornServiceApi mNoLimit91PornServiceApi;
-    private CacheProviders cacheProviders;
     private LifecycleProvider<Lifecycle.Event> provider;
-    private AddressHelper addressHelper;
-    @Inject
-    public IndexPresenter(NoLimit91PornServiceApi mNoLimit91PornServiceApi, CacheProviders cacheProviders, LifecycleProvider<Lifecycle.Event> provider,AddressHelper addressHelper) {
-        this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
-        this.cacheProviders = cacheProviders;
-        this.provider = provider;
-        this.addressHelper=addressHelper;
-    }
+    private DataManager dataManager;
 
-    public void setNoLimit91PornServiceApi(NoLimit91PornServiceApi mNoLimit91PornServiceApi) {
-        this.mNoLimit91PornServiceApi = mNoLimit91PornServiceApi;
+    @Inject
+    public IndexPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
+        this.provider = provider;
+        this.dataManager = dataManager;
     }
 
     /**
@@ -57,35 +41,9 @@ public class IndexPresenter extends MvpBasePresenter<IndexView> implements IInde
      */
     @Override
     public void loadIndexData(final boolean pullToRefresh, boolean cleanCache) {
-        Observable<String> indexPhpObservable = mNoLimit91PornServiceApi.indexPhp(HeaderUtils.getIndexHeader(addressHelper));
-        cacheProviders.getIndexPhp(indexPhpObservable, new EvictProvider(cleanCache))
-                .map(new Function<Reply<String>, String>() {
-                    @Override
-                    public String apply(Reply<String> responseBodyReply) throws Exception {
-                        switch (responseBodyReply.getSource()) {
-                            case CLOUD:
-                                Logger.t(TAG).d("数据来自：网络");
-                                break;
-                            case MEMORY:
-                                Logger.t(TAG).d("数据来自：内存");
-                                break;
-                            case PERSISTENCE:
-                                Logger.t(TAG).d("数据来自：磁盘缓存");
-                                break;
-                            default:
-                                break;
-                        }
-                        return responseBodyReply.getData();
-                    }
 
-                })
-                .map(new Function<String, List<UnLimit91PornItem>>() {
-                    @Override
-                    public List<UnLimit91PornItem> apply(String s) throws Exception {
-                        return Parse91PronVideo.parseIndex(s);
-                    }
-                })
-                .retryWhen(new RetryWhenProcess(2))
+        dataManager.loadPorn91VideoIndex(cleanCache)
+                .retryWhen(new RetryWhenProcess(RetryWhenProcess.PROCESS_TIME))
                 .compose(RxSchedulersHelper.<List<UnLimit91PornItem>>ioMainThread())
                 .compose(provider.<List<UnLimit91PornItem>>bindUntilEvent(Lifecycle.Event.ON_DESTROY))
                 .subscribe(new CallBackWrapper<List<UnLimit91PornItem>>() {

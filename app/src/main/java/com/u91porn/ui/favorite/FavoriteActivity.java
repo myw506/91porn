@@ -19,16 +19,11 @@ import com.helper.loadviewhelper.load.LoadViewHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.FavoriteAdapter;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.AppDataManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpActivity;
-import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.DialogUtils;
-import com.u91porn.utils.HeaderUtils;
 import com.u91porn.utils.LoadHelperUtils;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.constants.Keys;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -56,10 +51,10 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
     private AlertDialog deleteAlertDialog;
 
     @Inject
-    protected AddressHelper addressHelper;
+    protected FavoritePresenter favoritePresenter;
 
     @Inject
-    protected NoLimit91PornServiceApi noLimit91PornServiceApi;
+    protected DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -107,7 +102,7 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
         mUnLimit91Adapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader(addressHelper));
+                presenter.loadRemoteFavoriteData(false);
             }
         }, recyclerView);
 
@@ -115,19 +110,18 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
         helper.setListener(new OnLoadViewListener() {
             @Override
             public void onRetryClick() {
-                presenter.loadRemoteFavoriteData(false, HeaderUtils.getIndexHeader(addressHelper));
+                presenter.loadRemoteFavoriteData(false);
             }
         });
-        boolean needRefresh = (boolean) SPUtils.get(this, Keys.KEY_SP_USER_FAVORITE_NEED_REFRESH, false);
-        presenter.loadRemoteFavoriteData(needRefresh, HeaderUtils.getIndexHeader(addressHelper));
+        boolean needRefresh = dataManager.isFavoriteNeedRefresh();
+        presenter.loadRemoteFavoriteData(needRefresh);
     }
 
     @NonNull
     @Override
     public FavoritePresenter createPresenter() {
         getActivityComponent().inject(this);
-        AppDataManager appDataManager = AppDataManager.getInstance();
-        return new FavoritePresenter(appDataManager, noLimit91PornServiceApi, cacheProviders, user, provider,addressHelper);
+        return favoritePresenter;
     }
 
 
@@ -177,7 +171,7 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
 
     @Override
     public void setFavoriteData(List<UnLimit91PornItem> unLimit91PornItemList) {
-        SPUtils.put(this, Keys.KEY_SP_USER_FAVORITE_NEED_REFRESH, false);
+        dataManager.setFavoriteNeedRefresh(false);
         mUnLimit91Adapter.setNewData(unLimit91PornItemList);
     }
 
@@ -206,7 +200,7 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
     @Override
     public void deleteFavoriteSucc(String message) {
         //标志删除失败，下次加载服务器数据，清空缓存
-        SPUtils.put(this, Keys.KEY_SP_USER_FAVORITE_NEED_REFRESH, true);
+        dataManager.setFavoriteNeedRefresh(true);
         dismissDialog();
         showMessage(message, TastyToast.SUCCESS);
     }
@@ -256,6 +250,6 @@ public class FavoriteActivity extends MvpActivity<FavoriteView, FavoritePresente
 
     @Override
     public void onRefresh() {
-        presenter.loadRemoteFavoriteData(true, HeaderUtils.getIndexHeader(addressHelper));
+        presenter.loadRemoteFavoriteData(true);
     }
 }

@@ -9,13 +9,13 @@ import com.orhanobut.logger.Logger;
 import com.u91porn.cookie.SetCookieCache;
 import com.u91porn.cookie.SharedPrefsCookiePersistor;
 import com.u91porn.data.network.Api;
-import com.u91porn.data.network.Forum91PronServiceApi;
-import com.u91porn.data.network.GitHubServiceApi;
-import com.u91porn.data.network.MeiZiTuServiceApi;
-import com.u91porn.data.network.Mm99ServiceApi;
-import com.u91porn.data.network.NoLimit91PornServiceApi;
-import com.u91porn.data.network.PigAvServiceApi;
-import com.u91porn.data.network.ProxyServiceApi;
+import com.u91porn.data.network.apiservice.Forum91PronServiceApi;
+import com.u91porn.data.network.apiservice.GitHubServiceApi;
+import com.u91porn.data.network.apiservice.MeiZiTuServiceApi;
+import com.u91porn.data.network.apiservice.Mm99ServiceApi;
+import com.u91porn.data.network.apiservice.NoLimit91PornServiceApi;
+import com.u91porn.data.network.apiservice.PigAvServiceApi;
+import com.u91porn.data.network.apiservice.ProxyServiceApi;
 import com.u91porn.di.ApplicationContext;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.CommonHeaderInterceptor;
@@ -100,7 +100,7 @@ public class ApiServiceModule {
         RetrofitUrlManager.getInstance().putDomain(Api.GITHUB_DOMAIN_NAME, Api.APP_GITHUB_DOMAIN);
         RetrofitUrlManager.getInstance().putDomain(Api.MEI_ZI_TU_DOMAIN_NAME, Api.APP_MEIZITU_DOMAIN);
         RetrofitUrlManager.getInstance().putDomain(Api.MM_99_DOMAIN_NAME, Api.APP_99_MM_DOMAIN);
-        RetrofitUrlManager.getInstance().putDomain(Api.GUO_BAN_JIA_DOMAIN_NAME, Api.APP_PROXY_GUO_BAN_JIA_DOMAIN);
+        RetrofitUrlManager.getInstance().putDomain(Api.XICI_DAILI_DOMAIN_NAME, Api.APP_PROXY_XICI_DAILI_DOMAIN);
         if (!TextUtils.isEmpty(addressHelper.getVideo91PornAddress())) {
             RetrofitUrlManager.getInstance().putDomain(Api.PORN91_VIDEO_DOMAIN_NAME, addressHelper.getVideo91PornAddress());
         }

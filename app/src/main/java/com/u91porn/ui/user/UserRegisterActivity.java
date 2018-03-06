@@ -7,7 +7,6 @@ import android.support.annotation.NonNull;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.util.Base64;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
@@ -15,21 +14,18 @@ import android.widget.ImageView;
 
 import com.bumptech.glide.load.engine.DiskCacheStrategy;
 import com.bumptech.glide.load.resource.drawable.DrawableTransitionOptions;
-import com.franmontiel.persistentcookiejar.PersistentCookieJar;
 import com.orhanobut.logger.Logger;
 import com.qmuiteam.qmui.util.QMUIKeyboardHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
+import com.u91porn.cookie.CookieManager;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.main.MainActivity;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.DialogUtils;
 import com.u91porn.utils.GlideApp;
-import com.u91porn.utils.HeaderUtils;
-import com.u91porn.utils.SPUtils;
-import com.u91porn.utils.UserHelper;
-import com.u91porn.utils.constants.Keys;
 
 import javax.inject.Inject;
 
@@ -69,7 +65,10 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
     protected UserPresenter userPresenter;
 
     @Inject
-    protected PersistentCookieJar persistentCookieJar;
+    protected CookieManager cookieManager;
+
+    @Inject
+    protected DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -99,7 +98,7 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
         });
         alertDialog = DialogUtils.initLodingDialog(this, "注册中，请稍后...");
 
-        persistentCookieJar.clear();
+        cookieManager.cleanAllCookies();
     }
 
     /**
@@ -114,7 +113,6 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
     }
 
     private void register(String username, String email, String passwordOne, String passwordTwo, String captcha) {
-        startMain();
         if (TextUtils.isEmpty(username)) {
             showMessage("用户名不能为空", TastyToast.INFO);
             return;
@@ -140,16 +138,8 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
             showMessage("密码不一致，请检查", TastyToast.INFO);
             return;
         }
-        String next = "";
-//        String fingerprint = "2192328486";
-        String fingerprint = UserHelper.randomFingerprint();
-        String vip = "";
-        String actionSignUp = "Sign Up";
-        String submitX = "45";
-        String submitY = "13";
-        String ipAddress = addressHelper.getRandomIPAddress();
         QMUIKeyboardHelper.hideKeyboard(getCurrentFocus());
-        presenter.register(next, username, passwordOne, passwordTwo, email, captcha, fingerprint, vip, actionSignUp, submitX, submitY, ipAddress, HeaderUtils.getUserHeader(addressHelper,"signup"));
+        presenter.register(username, passwordOne, passwordTwo, email, captcha);
     }
 
     @NonNull
@@ -191,9 +181,9 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
      * 注册成功，默认保存用户名和密码
      */
     private void saveUserInfoPrf(String username, String password) {
-        SPUtils.put(this, Keys.KEY_SP_USER_LOGIN_USERNAME, username);
+        dataManager.setPorn91VideoLoginUserName(username);
         //记住密码
-        SPUtils.put(this, Keys.KEY_SP_USER_LOGIN_PASSWORD, Base64.encodeToString(password.getBytes(), Base64.DEFAULT));
+        dataManager.setPorn91VideoLoginUserPassWord(password);
     }
 
     @Override
@@ -208,7 +198,7 @@ public class UserRegisterActivity extends MvpActivity<UserView, UserPresenter> i
 
     @Override
     public void showLoading(boolean pullToRefresh) {
-        if (alertDialog == null) {
+        if (alertDialog == null || isFinishing()) {
             return;
         }
         alertDialog.show();

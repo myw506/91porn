@@ -31,7 +31,6 @@ import com.u91porn.ui.main.MainActivity;
 import com.u91porn.ui.proxy.ProxySettingActivity;
 import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.ui.user.UserLoginActivity;
-import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Constants;
 import com.u91porn.utils.constants.Keys;
@@ -113,9 +112,9 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         observableScrollView.postDelayed(new Runnable() {
             @Override
             public void run() {
-                int scrollYPosition = (int) SPUtils.get(context, Keys.KEY_SETTING_SCROLLVIEW_SCROLL_POSITION, 0);
+                int scrollYPosition = dataManager.getSettingScrollViewScrollPosition();
                 if (scrollYPosition > 0) {
-                    SPUtils.put(context, Keys.KEY_SETTING_SCROLLVIEW_SCROLL_POSITION, 0);
+                    dataManager.setSettingScrollViewScrollPosition(0);
                     observableScrollView.scrollTo(0, scrollYPosition);
                 }
             }
@@ -127,8 +126,8 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
     public void onResume() {
         super.onResume();
         setUpUserInfo(user);
-        String proxyStr = (String) SPUtils.get(context, Keys.KEY_SP_PROXY_IP_ADDRESS, "");
-        int proxyPort = (int) SPUtils.get(context, Keys.KEY_SP_PROXY_PORT, 0);
+        String proxyStr = dataManager.getProxyIpAddress();
+        int proxyPort = dataManager.getProxyPort();
         updateProxySetUI(proxyStr, proxyPort);
     }
 
@@ -150,15 +149,15 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
 
     private void initMineSection() {
 
-        boolean openNightMode = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_NIGHT_MODE, false);
+        boolean openNightMode = dataManager.isOpenNightMode();
         QMUICommonListItemView openNightModeItemWithSwitch = mineList.createItemView(nightModeStr);
         openNightModeItemWithSwitch.setAccessoryType(QMUICommonListItemView.ACCESSORY_TYPE_SWITCH);
         openNightModeItemWithSwitch.getSwitch().setChecked(openNightMode);
         openNightModeItemWithSwitch.getSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                SPUtils.put(context, Keys.KEY_SP_OPEN_NIGHT_MODE, isChecked);
-                SPUtils.put(context, Keys.KEY_SETTING_SCROLLVIEW_SCROLL_POSITION, scrollYPosition);
+                dataManager.setOpenNightMode(isChecked);
+                dataManager.setSettingScrollViewScrollPosition(scrollYPosition);
                 AppCompatDelegate.setDefaultNightMode(isChecked ? AppCompatDelegate.MODE_NIGHT_YES : AppCompatDelegate.MODE_NIGHT_NO);
                 Intent intent = new Intent(context, MainActivity.class);
                 intent.putExtra(Keys.KEY_SELECT_INDEX, 4);
@@ -168,11 +167,11 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
             }
         });
 
-        boolean openProxy = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
+        boolean openProxy = dataManager.isOpenHttpProxy();
         openProxyItemWithSwitch = mineList.createItemView(proxyStr);
         openProxyItemWithSwitch.setOrientation(QMUICommonListItemView.VERTICAL);
-        final String proxyHost = (String) SPUtils.get(context, Keys.KEY_SP_PROXY_IP_ADDRESS, "");
-        final int port = (int) SPUtils.get(context, Keys.KEY_SP_PROXY_PORT, 0);
+        final String proxyHost = dataManager.getProxyIpAddress();
+        final int port = dataManager.getProxyPort();
         if (TextUtils.isEmpty(proxyHost) || port == 0) {
             openProxyItemWithSwitch.setDetailText("长按设置");
         } else {
@@ -187,7 +186,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 if (isChecked) {
                     showMessage("暂时取消设置", TastyToast.WARNING);
                     buttonView.setChecked(false);
-                    SPUtils.put(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
+                    dataManager.setOpenHttpProxy(false);
                     return;
                 }
                 if (isChecked) {
@@ -195,10 +194,10 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 }
                 if (TextUtils.isEmpty(proxyHost) || port == 0) {
                     buttonView.setChecked(false);
-                    SPUtils.put(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
+                    dataManager.setOpenHttpProxy(false);
                     return;
                 }
-                SPUtils.put(context, Keys.KEY_SP_OPEN_HTTP_PROXY, isChecked);
+                dataManager.setOpenHttpProxy(isChecked);
             }
         });
 
@@ -224,10 +223,6 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
                 .addItemView(openProxyItemWithSwitch, null, new View.OnLongClickListener() {
                     @Override
                     public boolean onLongClick(View v) {
-                        if (true) {
-                            showMessage("暂时取消设置", TastyToast.WARNING);
-                            return false;
-                        }
                         Intent intent = new Intent(context, ProxySettingActivity.class);
                         startActivityWithAnimotion(intent);
                         return false;
@@ -254,7 +249,7 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         if (!TextUtils.isEmpty(proxyStr) && proxyPort > 0) {
             openProxyItemWithSwitch.setDetailText(proxyStr + " : " + proxyPort);
         }
-        boolean openProxy = (boolean) SPUtils.get(context, Keys.KEY_SP_OPEN_HTTP_PROXY, false);
+        boolean openProxy = dataManager.isOpenHttpProxy();
         openProxyItemWithSwitch.getSwitch().setChecked(openProxy);
     }
 

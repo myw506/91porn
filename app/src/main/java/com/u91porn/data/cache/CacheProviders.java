@@ -32,7 +32,7 @@ public interface CacheProviders {
      * @param evictProvider 缓存控制
      * @return oab对象
      */
-    @ProviderKey("indexPhp")
+    @ProviderKey("porn91VideoIndexPhp")
     @LifeCache(duration = CACHE_TIME, timeUnit = TimeUnit.MINUTES)
     Observable<Reply<String>> getIndexPhp(Observable<String> indexPhp, EvictProvider evictProvider);
 

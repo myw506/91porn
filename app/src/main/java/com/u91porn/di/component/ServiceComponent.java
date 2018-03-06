@@ -2,6 +2,7 @@ package com.u91porn.di.component;
 
 import com.u91porn.di.PerService;
 import com.u91porn.di.module.ServiceModule;
+import com.u91porn.service.DownloadVideoService;
 
 import dagger.Component;
 
@@ -12,5 +13,5 @@ import dagger.Component;
 @PerService
 @Component(dependencies = ApplicationComponent.class, modules = ServiceModule.class)
 public interface ServiceComponent {
-
+    void inject(DownloadVideoService downloadVideoService);
 }

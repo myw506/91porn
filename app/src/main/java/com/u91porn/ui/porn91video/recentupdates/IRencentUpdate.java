@@ -7,6 +7,6 @@ package com.u91porn.ui.porn91video.recentupdates;
  * @date 2017/12/19
  */
 
-public interface IRencentUpdate extends IBaseRecentUpdate {
+public interface IRencentUpdate {
     void loadRecentUpdatesData(final boolean pullToRefresh, boolean cleanCache, String next);
 }

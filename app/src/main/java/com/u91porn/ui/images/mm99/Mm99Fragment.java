@@ -18,7 +18,6 @@ import com.qmuiteam.qmui.util.QMUIDisplayHelper;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.adapter.Mm99Adapter;
-import com.u91porn.data.network.Mm99ServiceApi;
 import com.u91porn.data.model.Mm99;
 import com.u91porn.ui.MvpFragment;
 import com.u91porn.ui.images.viewimage.PictureViewerActivity;
@@ -40,16 +39,12 @@ import butterknife.Unbinder;
  */
 public class Mm99Fragment extends MvpFragment<Mm99View, Mm99Presenter> implements Mm99View, SwipeRefreshLayout.OnRefreshListener {
 
-
     @BindView(R.id.recyclerView)
     RecyclerView recyclerView;
     @BindView(R.id.swipe_layout)
     SwipeRefreshLayout swipeLayout;
     Unbinder unbinder;
     private Mm99Adapter mm99Adapter;
-
-    @Inject
-    protected Mm99ServiceApi mm99ServiceApi;
 
     @Inject
     protected Mm99Presenter mm99Presenter;

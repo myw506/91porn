@@ -16,7 +16,7 @@ import com.trello.lifecycle2.android.lifecycle.AndroidLifecycle;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.MyApplication;
 import com.u91porn.R;
-import com.u91porn.data.cache.CacheProviders;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.Category;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.data.model.User;
@@ -48,10 +48,10 @@ public abstract class BaseFragment extends Fragment {
     protected HttpProxyCacheServer httpProxyCacheServer;
 
     @Inject
-    protected CacheProviders cacheProviders;
+    protected User user;
 
     @Inject
-    protected User user;
+    protected DataManager dataManager;
 
     @Override
     public void onAttach(Context context) {
@@ -172,7 +172,7 @@ public abstract class BaseFragment extends Fragment {
     }
 
     protected void goToPlayVideo(UnLimit91PornItem unLimit91PornItem) {
-        Intent intent = PlaybackEngine.getPlaybackEngineIntent(getContext());
+        Intent intent = PlaybackEngine.getPlaybackEngineIntent(getContext(), dataManager.getPlaybackEngine());
         intent.putExtra(Keys.KEY_INTENT_UNLIMIT91PORNITEM, unLimit91PornItem);
         if (activity != null) {
             startActivity(intent);

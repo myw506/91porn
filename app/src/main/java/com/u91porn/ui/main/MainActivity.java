@@ -10,6 +10,7 @@ import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
+import android.text.TextUtils;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.FrameLayout;
@@ -27,9 +28,9 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.BuildConfig;
 import com.u91porn.R;
+import com.u91porn.data.DataManager;
 import com.u91porn.data.model.Notice;
 import com.u91porn.data.model.UpdateVersion;
-import com.u91porn.data.network.GitHubServiceApi;
 import com.u91porn.eventbus.LowMemoryEvent;
 import com.u91porn.service.UpdateDownloadService;
 import com.u91porn.ui.MvpActivity;
@@ -46,11 +47,9 @@ import com.u91porn.ui.porn91video.search.SearchActivity;
 import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.ui.update.UpdatePresenter;
 import com.u91porn.ui.user.UserLoginActivity;
-import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.ApkVersionUtils;
 import com.u91porn.utils.FragmentUtils;
 import com.u91porn.utils.SDCardUtils;
-import com.u91porn.utils.SPUtils;
 import com.u91porn.utils.UserHelper;
 import com.u91porn.utils.constants.Constants;
 import com.u91porn.utils.constants.Keys;
@@ -108,9 +107,6 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     private boolean isBackground = false;
 
     @Inject
-    protected GitHubServiceApi gitHubServiceApi;
-
-    @Inject
     protected UpdatePresenter updatePresenter;
 
     @Inject
@@ -120,7 +116,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     MainPresenter mainPresenter;
 
     @Inject
-    AddressHelper addressHelper;
+    DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -145,8 +141,8 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
 
             }
         });
-        firstTabShow = (int) SPUtils.get(this, Keys.KEY_SP_FIRST_TAB_SHOW, PORN91);
-        secondTabShow = (int) SPUtils.get(this, Keys.KEY_SP_SECOND_TAB_SHOW, MEI_ZI_TU);
+        firstTabShow = dataManager.getMainFirstTabShow();
+        secondTabShow = dataManager.getMainSecondTabShow();
         doOnTabSelected(selectIndex);
     }
 
@@ -274,7 +270,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 showFloatingActionButton(fabSearch);
                 break;
             case 2:
-                if (addressHelper.isEmpty(Keys.KEY_SP_FORUM_91_PORN_ADDRESS)) {
+                if (TextUtils.isEmpty(dataManager.getPorn91ForumAddress())) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -306,7 +302,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     private void handlerFirstTabClickToShow(int position, int itemId, boolean isInnerReplace) {
         switch (position) {
             case PORN91:
-                if (addressHelper.isEmpty(Keys.KEY_SP_CUSTOM_ADDRESS)) {
+                if (TextUtils.isEmpty(dataManager.getPorn91VideoAddress())) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -315,11 +311,11 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 }
                 mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMain91PronVideoFragment, content.getId(), itemId, isInnerReplace);
                 firstTabShow = PORN91;
-                SPUtils.put(this, Keys.KEY_SP_FIRST_TAB_SHOW, PORN91);
+                dataManager.setMainFirstTabShow(PORN91);
                 mMainPigAvFragment = null;
                 break;
             case PIG_AV:
-                if (addressHelper.isEmpty(Keys.KEY_SP_PIG_AV_ADDRESS)) {
+                if (TextUtils.isEmpty(dataManager.getPigAvAddress())) {
                     showNeedSetAddressDialog();
                     return;
                 }
@@ -328,7 +324,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 }
                 mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMainPigAvFragment, content.getId(), itemId, isInnerReplace);
                 firstTabShow = PIG_AV;
-                SPUtils.put(this, Keys.KEY_SP_FIRST_TAB_SHOW, PIG_AV);
+                dataManager.setMainFirstTabShow(PIG_AV);
                 mMain91PronVideoFragment = null;
                 break;
             default:
@@ -364,7 +360,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 }
                 mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMaiMeiZiTuFragment, content.getId(), itemId, isInnerReplace);
                 secondTabShow = MEI_ZI_TU;
-                SPUtils.put(this, Keys.KEY_SP_SECOND_TAB_SHOW, MEI_ZI_TU);
+                dataManager.setMainSecondTabShow(MEI_ZI_TU);
                 mMain99MmFragment = null;
                 break;
             case MM_99:
@@ -373,7 +369,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 }
                 mCurrentFragment = FragmentUtils.switchContent(fragmentManager, mCurrentFragment, mMain99MmFragment, content.getId(), itemId, isInnerReplace);
                 secondTabShow = MM_99;
-                SPUtils.put(this, Keys.KEY_SP_SECOND_TAB_SHOW, MM_99);
+                dataManager.setMainSecondTabShow(MM_99);
                 mMaiMeiZiTuFragment = null;
                 break;
             default:
@@ -478,7 +474,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     }
 
     private void checkNewNotice() {
-        int versionCode = (int) SPUtils.get(this, Keys.KEY_SP_NOTICE_VERSION_CODE, 1);
+        int versionCode = dataManager.getNoticeVersionCode();
         presenter.checkNewNotice(versionCode);
     }
 
@@ -561,7 +557,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
             @Override
             public void onClick(QMUIDialog dialog, int index) {
                 //保存版本号，用户对于此版本选择了不在提示
-                SPUtils.put(MainActivity.this, Keys.KEY_SP_IGNORE_THIS_VERSION_UPDATE_TIP, updateVersion.getVersionCode());
+                dataManager.setIgnoreThisVersionUpdateTip(updateVersion.getVersionCode());
                 dialog.dismiss();
             }
         });
@@ -572,13 +568,12 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     @Override
     public MainPresenter createPresenter() {
         getActivityComponent().inject(this);
-        Logger.t(TAG).d("*************************gitHubServiceApi:" + gitHubServiceApi.toString());
         return mainPresenter;
     }
 
     @Override
     public void needUpdate(UpdateVersion updateVersion) {
-        int versionCode = (int) SPUtils.get(this, Keys.KEY_SP_IGNORE_THIS_VERSION_UPDATE_TIP, 0);
+        int versionCode = dataManager.getIgnoreThisVersionUpdateTip();
         //如果保存的版本号等于当前要升级的版本号，表示用户已经选择不在提示，不显示提示对话框了
         if (versionCode == updateVersion.getVersionCode()) {
             return;
@@ -629,7 +624,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
             @Override
             public void onClick(QMUIDialog dialog, int index) {
                 dialog.dismiss();
-                SPUtils.put(MainActivity.this, Keys.KEY_SP_NOTICE_VERSION_CODE, notice.getVersionCode());
+                dataManager.setNoticeVersionCode(notice.getVersionCode());
             }
         });
         builder.show();
