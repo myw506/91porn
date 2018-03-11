@@ -1,7 +1,6 @@
 package com.u91porn.ui.proxy;
 
 import com.u91porn.data.model.ProxyModel;
-import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.BaseView;
 
 import java.util.List;
@@ -16,7 +15,7 @@ public interface ProxyView extends BaseView {
 
     void testProxyError(String message);
 
-    void parseGouBanJiaSuccess(List<ProxyModel> proxyModelList);
+    void parseXiCiDaiLiSuccess(List<ProxyModel> proxyModelList);
 
     void loadMoreDataComplete();
 

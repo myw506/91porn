@@ -1,4 +1,4 @@
-package com.u91porn.ui.porn91video.common;
+package com.u91porn.ui.porn91video.videolist;
 
 
 import android.os.Bundle;
@@ -11,12 +11,16 @@ import android.support.v7.widget.RecyclerView;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.FrameLayout;
+import android.widget.LinearLayout;
 
 import com.chad.library.adapter.base.BaseQuickAdapter;
 import com.helper.loadviewhelper.help.OnLoadViewListener;
 import com.helper.loadviewhelper.load.LoadViewHelper;
+import com.orhanobut.logger.Logger;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
+import com.u91porn.adapter.SkipPageAdapter;
 import com.u91porn.adapter.UnLimit91Adapter;
 import com.u91porn.data.model.UnLimit91PornItem;
 import com.u91porn.ui.MvpFragment;
@@ -38,31 +42,40 @@ import butterknife.Unbinder;
  *
  * @author flymegoc
  */
-public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> implements CommonView, SwipeRefreshLayout.OnRefreshListener {
+public class VideoListFragment extends MvpFragment<VideoListView, VideoListPresenter> implements VideoListView, SwipeRefreshLayout.OnRefreshListener {
 
 
-    private static final String TAG = CommonFragment.class.getSimpleName();
+    private static final String TAG = VideoListFragment.class.getSimpleName();
     @BindView(R.id.recyclerView_common)
     RecyclerView recyclerView;
     Unbinder unbinder;
     @BindView(R.id.contentView)
     SwipeRefreshLayout contentView;
 
-    private UnLimit91Adapter mUnLimit91Adapter;
+    @BindView(R.id.recyclerView_skip_page)
+    RecyclerView skipPageRecyclerView;
 
-    private String m;
+    private UnLimit91Adapter mUnLimit91Adapter;
 
     private LoadViewHelper helper;
 
     @Inject
-    protected CommonPresenter commonPresenter;
+    protected VideoListPresenter videoListPresenter;
 
-    public CommonFragment() {
+    private SkipPageAdapter skipPageAdapter;
+
+    @BindView(R.id.ll_skip_page_loading)
+    LinearLayout skipLoadingLayout;
+
+    @BindView(R.id.fl_skip_page)
+    FrameLayout skipPageLayout;
+
+    public VideoListFragment() {
         // Required empty public constructor
     }
 
-    public static CommonFragment getInstance() {
-        return new CommonFragment();
+    public static VideoListFragment getInstance() {
+        return new VideoListFragment();
     }
 
     @Override
@@ -70,17 +83,14 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
         super.onCreate(savedInstanceState);
         ArrayList<UnLimit91PornItem> mUnLimit91PornItemList = new ArrayList<>();
         mUnLimit91Adapter = new UnLimit91Adapter(R.layout.item_unlimit_91porn, mUnLimit91PornItemList);
-    }
-
-    public void setM(String m) {
-        this.m = m;
+        skipPageAdapter = new SkipPageAdapter(R.layout.item_skip_page);
     }
 
     @NonNull
     @Override
-    public CommonPresenter createPresenter() {
+    public VideoListPresenter createPresenter() {
         getActivityComponent().inject(this);
-        return commonPresenter;
+        return videoListPresenter;
     }
 
     @Override
@@ -88,7 +98,7 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
         super.onCreateView(inflater, container, savedInstanceState);
-        return inflater.inflate(R.layout.fragment_common, container, false);
+        return inflater.inflate(R.layout.fragment_video_list, container, false);
     }
 
     @Override
@@ -110,23 +120,42 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
         mUnLimit91Adapter.setOnLoadMoreListener(new BaseQuickAdapter.RequestLoadMoreListener() {
             @Override
             public void onLoadMoreRequested() {
-                presenter.loadHotData(false, false, category.getCategoryValue(), m);
+                presenter.loadVideoListData(false, false, category.getCategoryValue(), 0);
             }
         });
         helper = new LoadViewHelper(recyclerView);
         helper.setListener(new OnLoadViewListener() {
             @Override
             public void onRetryClick() {
-                loadData(false, true);
+                loadData(false, true, 0);
             }
         });
         //loadData(false);
         AppUtils.setColorSchemeColors(context, contentView);
+
+        handlerSkipPage();
+    }
+
+    private void handlerSkipPage() {
+        if (dataManager.isOpenSkipPage()) {
+            skipPageLayout.setVisibility(View.VISIBLE);
+            skipPageRecyclerView.setLayoutManager(new LinearLayoutManager(getContext(), LinearLayoutManager.HORIZONTAL, false));
+            skipPageRecyclerView.setAdapter(skipPageAdapter);
+            skipPageAdapter.setOnItemClickListener(new BaseQuickAdapter.OnItemClickListener() {
+                @Override
+                public void onItemClick(BaseQuickAdapter adapter, View view, int position) {
+                    int page = (int) adapter.getItem(position);
+                    loadData(false, false, page);
+                }
+            });
+        } else {
+            skipPageLayout.setVisibility(View.GONE);
+        }
     }
 
     @Override
     protected void onLazyLoadOnce() {
-        loadData(false, false);
+        loadData(false, false, 0);
     }
 
     @Override
@@ -138,6 +167,36 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
     @Override
     public void setData(List<UnLimit91PornItem> data) {
         mUnLimit91Adapter.setNewData(data);
+        mUnLimit91Adapter.disableLoadMoreIfNotFullPage(recyclerView);
+        recyclerView.smoothScrollToPosition(0);
+    }
+
+    @Override
+    public void setPageData(List<Integer> pageData) {
+        skipPageAdapter.setNewData(pageData);
+    }
+
+    @Override
+    public void updateCurrentPage(final int currentPage) {
+        Logger.t(TAG).d("第《" + currentPage + "》页");
+        skipPageAdapter.setCurrentPage(currentPage);
+        skipPageRecyclerView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                skipPageRecyclerView.smoothScrollToPosition(currentPage + 2);
+            }
+        }, 200);
+    }
+
+    @Override
+    public void showSkipPageLoading() {
+        skipLoadingLayout.setVisibility(View.VISIBLE);
+
+    }
+
+    @Override
+    public void hideSkipPageLoading() {
+        skipLoadingLayout.setVisibility(View.GONE);
     }
 
     @Override
@@ -148,13 +207,13 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
     }
 
     @Override
-    public void loadData(boolean pullToRefresh, boolean cleanCache) {
-        presenter.loadHotData(pullToRefresh, cleanCache, category.getCategoryValue(), m);
+    public void loadData(boolean pullToRefresh, boolean cleanCache, int skipPage) {
+        presenter.loadVideoListData(pullToRefresh, cleanCache, category.getCategoryValue(), skipPage);
     }
 
     @Override
     public void onRefresh() {
-        loadData(true, true);
+        loadData(true, true, 0);
     }
 
     @Override
@@ -190,7 +249,6 @@ public class CommonFragment extends MvpFragment<CommonView, CommonPresenter> imp
     @Override
     public void noMoreData() {
         mUnLimit91Adapter.loadMoreEnd(true);
-        showMessage("没有更多数据了", TastyToast.INFO);
     }
 
     @Override

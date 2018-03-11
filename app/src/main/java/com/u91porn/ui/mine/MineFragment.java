@@ -19,7 +19,6 @@ import android.widget.TextView;
 
 import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
 import com.qmuiteam.qmui.widget.grouplist.QMUIGroupListView;
-import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.R;
 import com.u91porn.data.model.User;
 import com.u91porn.ui.BaseFragment;
@@ -183,15 +182,6 @@ public class MineFragment extends BaseFragment implements View.OnClickListener {
         openProxyItemWithSwitch.getSwitch().setOnCheckedChangeListener(new CompoundButton.OnCheckedChangeListener() {
             @Override
             public void onCheckedChanged(CompoundButton buttonView, boolean isChecked) {
-                if (isChecked) {
-                    showMessage("暂时取消设置", TastyToast.WARNING);
-                    buttonView.setChecked(false);
-                    dataManager.setOpenHttpProxy(false);
-                    return;
-                }
-                if (isChecked) {
-                    showMessage("长按可设置哟", TastyToast.INFO);
-                }
                 if (TextUtils.isEmpty(proxyHost) || port == 0) {
                     buttonView.setChecked(false);
                     dataManager.setOpenHttpProxy(false);

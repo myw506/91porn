@@ -69,7 +69,7 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
             Logger.t(TAG).d("连接上下载服务");
             List<UnLimit91PornItem> unLimit91PornItems = dataManager.loadDownloadingData();
             for (UnLimit91PornItem unLimit91PornItem : unLimit91PornItems) {
-                int status = FileDownloader.getImpl().getStatus(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath());
+                int status = FileDownloader.getImpl().getStatus(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath(dataManager));
                 Logger.t(TAG).d("fix status:::" + status);
                 if (status != unLimit91PornItem.getStatus()) {
                     unLimit91PornItem.setStatus(status);
@@ -123,7 +123,6 @@ public class DownloadingFragment extends MvpFragment<DownloadView, DownloadPrese
                 if (view.getId() == R.id.right_menu_delete) {
                     SwipeItemLayout swipeItemLayout = (SwipeItemLayout) view.getParent();
                     swipeItemLayout.close();
-                    FileDownloader.getImpl().clear(unLimit91PornItem.getDownloadId(), unLimit91PornItem.getDownLoadPath());
                     presenter.deleteDownloadingTask(unLimit91PornItem);
                     presenter.loadDownloadingData();
                 } else if (view.getId() == R.id.iv_download_control) {

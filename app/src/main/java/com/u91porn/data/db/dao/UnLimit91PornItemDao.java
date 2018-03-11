@@ -43,7 +43,7 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
         public final static Property TotalFarBytes = new Property(11, int.class, "totalFarBytes", false, "TOTAL_FAR_BYTES");
         public final static Property Status = new Property(12, int.class, "status", false, "STATUS");
         public final static Property AddDownloadDate = new Property(13, java.util.Date.class, "addDownloadDate", false, "ADD_DOWNLOAD_DATE");
-        public final static Property FinshedDownloadDate = new Property(14, java.util.Date.class, "finshedDownloadDate", false, "FINSHED_DOWNLOAD_DATE");
+        public final static Property FinishedDownloadDate = new Property(14, java.util.Date.class, "finishedDownloadDate", false, "FINISHED_DOWNLOAD_DATE");
         public final static Property ViewHistoryDate = new Property(15, java.util.Date.class, "viewHistoryDate", false, "VIEW_HISTORY_DATE");
     }
 
@@ -77,7 +77,7 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
                 "\"TOTAL_FAR_BYTES\" INTEGER NOT NULL ," + // 11: totalFarBytes
                 "\"STATUS\" INTEGER NOT NULL ," + // 12: status
                 "\"ADD_DOWNLOAD_DATE\" INTEGER," + // 13: addDownloadDate
-                "\"FINSHED_DOWNLOAD_DATE\" INTEGER," + // 14: finshedDownloadDate
+                "\"FINISHED_DOWNLOAD_DATE\" INTEGER," + // 14: finishedDownloadDate
                 "\"VIEW_HISTORY_DATE\" INTEGER);"); // 15: viewHistoryDate
         // Add Indexes
         db.execSQL("CREATE UNIQUE INDEX " + constraint + "IDX_UN_LIMIT91_PORN_ITEM_VIEW_KEY ON \"UN_LIMIT91_PORN_ITEM\"" +
@@ -136,9 +136,9 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
             stmt.bindLong(14, addDownloadDate.getTime());
         }
  
-        java.util.Date finshedDownloadDate = entity.getFinshedDownloadDate();
-        if (finshedDownloadDate != null) {
-            stmt.bindLong(15, finshedDownloadDate.getTime());
+        java.util.Date finishedDownloadDate = entity.getFinishedDownloadDate();
+        if (finishedDownloadDate != null) {
+            stmt.bindLong(15, finishedDownloadDate.getTime());
         }
  
         java.util.Date viewHistoryDate = entity.getViewHistoryDate();
@@ -193,9 +193,9 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
             stmt.bindLong(14, addDownloadDate.getTime());
         }
  
-        java.util.Date finshedDownloadDate = entity.getFinshedDownloadDate();
-        if (finshedDownloadDate != null) {
-            stmt.bindLong(15, finshedDownloadDate.getTime());
+        java.util.Date finishedDownloadDate = entity.getFinishedDownloadDate();
+        if (finishedDownloadDate != null) {
+            stmt.bindLong(15, finishedDownloadDate.getTime());
         }
  
         java.util.Date viewHistoryDate = entity.getViewHistoryDate();
@@ -232,7 +232,7 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
             cursor.getInt(offset + 11), // totalFarBytes
             cursor.getInt(offset + 12), // status
             cursor.isNull(offset + 13) ? null : new java.util.Date(cursor.getLong(offset + 13)), // addDownloadDate
-            cursor.isNull(offset + 14) ? null : new java.util.Date(cursor.getLong(offset + 14)), // finshedDownloadDate
+            cursor.isNull(offset + 14) ? null : new java.util.Date(cursor.getLong(offset + 14)), // finishedDownloadDate
             cursor.isNull(offset + 15) ? null : new java.util.Date(cursor.getLong(offset + 15)) // viewHistoryDate
         );
         return entity;
@@ -254,7 +254,7 @@ public class UnLimit91PornItemDao extends AbstractDao<UnLimit91PornItem, Long> {
         entity.setTotalFarBytes(cursor.getInt(offset + 11));
         entity.setStatus(cursor.getInt(offset + 12));
         entity.setAddDownloadDate(cursor.isNull(offset + 13) ? null : new java.util.Date(cursor.getLong(offset + 13)));
-        entity.setFinshedDownloadDate(cursor.isNull(offset + 14) ? null : new java.util.Date(cursor.getLong(offset + 14)));
+        entity.setFinishedDownloadDate(cursor.isNull(offset + 14) ? null : new java.util.Date(cursor.getLong(offset + 14)));
         entity.setViewHistoryDate(cursor.isNull(offset + 15) ? null : new java.util.Date(cursor.getLong(offset + 15)));
      }
     

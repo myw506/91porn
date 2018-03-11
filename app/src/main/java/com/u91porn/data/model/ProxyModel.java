@@ -95,4 +95,16 @@ public class ProxyModel {
     public void setLiveTime(String liveTime) {
         this.liveTime = liveTime;
     }
+
+    public String getTypeShowStr() {
+        if (type == TYPE_HTTP) {
+            return "HTTP";
+        } else if (type == TYPE_HTTPS) {
+            return "HTTPS";
+        } else if (type == TYPE_SOCKS) {
+            return "SOCKS";
+        } else {
+            return "未知";
+        }
+    }
 }

@@ -1,5 +1,8 @@
 package com.u91porn.data.model;
 
+import android.text.TextUtils;
+
+import com.u91porn.data.DataManager;
 import com.u91porn.data.db.dao.DaoSession;
 import com.u91porn.data.db.dao.UnLimit91PornItemDao;
 import com.u91porn.data.db.dao.VideoResultDao;
@@ -45,7 +48,7 @@ public class UnLimit91PornItem implements Serializable {
     private int totalFarBytes;
     private int status;
     private Date addDownloadDate;
-    private Date finshedDownloadDate;
+    private Date finishedDownloadDate;
     private Date viewHistoryDate;
 
     /**
@@ -61,9 +64,9 @@ public class UnLimit91PornItem implements Serializable {
     private transient UnLimit91PornItemDao myDao;
 
 
-    @Generated(hash = 1886601433)
+    @Generated(hash = 1131434211)
     public UnLimit91PornItem(Long id, String viewKey, String title, String imgUrl, String duration, String info, long videoResultId, int downloadId, int progress, long speed,
-                             int soFarBytes, int totalFarBytes, int status, Date addDownloadDate, Date finshedDownloadDate, Date viewHistoryDate) {
+            int soFarBytes, int totalFarBytes, int status, Date addDownloadDate, Date finishedDownloadDate, Date viewHistoryDate) {
         this.id = id;
         this.viewKey = viewKey;
         this.title = title;
@@ -78,7 +81,7 @@ public class UnLimit91PornItem implements Serializable {
         this.totalFarBytes = totalFarBytes;
         this.status = status;
         this.addDownloadDate = addDownloadDate;
-        this.finshedDownloadDate = finshedDownloadDate;
+        this.finishedDownloadDate = finishedDownloadDate;
         this.viewHistoryDate = viewHistoryDate;
     }
 
@@ -109,7 +112,12 @@ public class UnLimit91PornItem implements Serializable {
         return id.hashCode();
     }
 
-    public String getDownLoadPath() {
+    public String getDownLoadPath(DataManager dataManager) {
+        //先读取自定义目录
+        if (!TextUtils.isEmpty(dataManager.getCustomDownloadVideoDirPath())) {
+            return dataManager.getCustomDownloadVideoDirPath() + getViewKey() + ".mp4";
+        }
+
         return SDCardUtils.DOWNLOAD_VIDEO_PATH + getViewKey() + ".mp4";
     }
 
@@ -121,12 +129,12 @@ public class UnLimit91PornItem implements Serializable {
         this.addDownloadDate = addDownloadDate;
     }
 
-    public Date getFinshedDownloadDate() {
-        return finshedDownloadDate;
+    public Date getFinishedDownloadDate() {
+        return finishedDownloadDate;
     }
 
-    public void setFinshedDownloadDate(Date finshedDownloadDate) {
-        this.finshedDownloadDate = finshedDownloadDate;
+    public void setFinishedDownloadDate(Date finishedDownloadDate) {
+        this.finishedDownloadDate = finishedDownloadDate;
     }
 
     public Date getViewHistoryDate() {
@@ -336,7 +344,7 @@ public class UnLimit91PornItem implements Serializable {
                 ", totalFarBytes=" + totalFarBytes +
                 ", status=" + status +
                 ", addDownloadDate=" + addDownloadDate +
-                ", finshedDownloadDate=" + finshedDownloadDate +
+                ", finishedDownloadDate=" + finishedDownloadDate +
                 ", viewHistoryDate=" + viewHistoryDate +
                 ", daoSession=" + daoSession +
                 ", myDao=" + myDao +
@@ -344,7 +352,9 @@ public class UnLimit91PornItem implements Serializable {
                 '}';
     }
 
-    /** called by internal mechanisms, do not call yourself. */
+    /**
+     * called by internal mechanisms, do not call yourself.
+     */
     @Generated(hash = 2098740272)
     public void __setDaoSession(DaoSession daoSession) {
         this.daoSession = daoSession;

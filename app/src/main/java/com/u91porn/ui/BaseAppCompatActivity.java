@@ -75,6 +75,11 @@ public abstract class BaseAppCompatActivity extends AppCompatActivity implements
     }
 
     @Override
+    protected void onRestoreInstanceState(Bundle savedInstanceState) {
+        super.onRestoreInstanceState(savedInstanceState);
+    }
+
+    @Override
     public void setContentView(int layoutResID) {
         super.setContentView(layoutResID);
         setStatusBarColor(ContextCompat.getColor(this, R.color.colorPrimary));

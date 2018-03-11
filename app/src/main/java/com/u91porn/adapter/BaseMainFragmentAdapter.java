@@ -9,14 +9,13 @@ import android.support.v4.app.FragmentTransaction;
 import android.view.ViewGroup;
 
 import com.u91porn.data.model.Category;
-import com.u91porn.ui.porn91video.common.CommonFragment;
-import com.u91porn.ui.porn91forum.Forum91IndexFragment;
-import com.u91porn.ui.porn91forum.ForumFragment;
-import com.u91porn.ui.porn91video.index.IndexFragment;
 import com.u91porn.ui.images.meizitu.MeiZiTuFragment;
 import com.u91porn.ui.images.mm99.Mm99Fragment;
 import com.u91porn.ui.pigav.PigAvFragment;
-import com.u91porn.ui.porn91video.recentupdates.RecentUpdatesFragment;
+import com.u91porn.ui.porn91forum.Forum91IndexFragment;
+import com.u91porn.ui.porn91forum.ForumFragment;
+import com.u91porn.ui.porn91video.index.IndexFragment;
+import com.u91porn.ui.porn91video.videolist.VideoListFragment;
 
 import java.util.List;
 
@@ -80,24 +79,16 @@ public class BaseMainFragmentAdapter extends FragmentPagerAdapter {
         Category category = categoryList.get(position);
         switch (type) {
             case Category.TYPE_91PORN:
-                if (("index").equals(category.getCategoryValue())) {
+                if ("index".equalsIgnoreCase(category.getCategoryValue())) {
                     IndexFragment indexFragment = IndexFragment.getInstance();
                     indexFragment.setCategory(category);
                     return indexFragment;
-                } else if ("watch".equals(category.getCategoryValue())) {
-                    RecentUpdatesFragment recentUpdatesFragment = RecentUpdatesFragment.newInstance();
-                    recentUpdatesFragment.setCategory(category);
-                    return recentUpdatesFragment;
                 } else {
-                    CommonFragment commonFragment = CommonFragment.getInstance();
-                    commonFragment.setCategory(category);
-                    if (!"top1".equals(category.getCategoryValue())) {
-                        commonFragment.setM(null);
-                    } else {
-                        commonFragment.setM("-1");
-                    }
-                    return commonFragment;
+                    VideoListFragment videoListFragment = VideoListFragment.getInstance();
+                    videoListFragment.setCategory(category);
+                    return videoListFragment;
                 }
+
             case Category.TYPE_91PORN_FORUM:
                 if (("index").equals(category.getCategoryValue())) {
                     Forum91IndexFragment forum91IndexFragment = Forum91IndexFragment.getInstance();

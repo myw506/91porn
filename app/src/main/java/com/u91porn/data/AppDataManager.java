@@ -501,4 +501,24 @@ public class AppDataManager implements DataManager {
     public int getSettingScrollViewScrollPosition() {
         return mPreferencesHelper.getSettingScrollViewScrollPosition();
     }
+
+    @Override
+    public void setOpenSkipPage(boolean openSkipPage) {
+        mPreferencesHelper.setOpenSkipPage(openSkipPage);
+    }
+
+    @Override
+    public boolean isOpenSkipPage() {
+        return mPreferencesHelper.isOpenSkipPage();
+    }
+
+    @Override
+    public void setCustomDownloadVideoDirPath(String customDirPath) {
+        mPreferencesHelper.setCustomDownloadVideoDirPath(customDirPath);
+    }
+
+    @Override
+    public String getCustomDownloadVideoDirPath() {
+        return mPreferencesHelper.getCustomDownloadVideoDirPath();
+    }
 }

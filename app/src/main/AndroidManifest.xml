@@ -110,12 +110,12 @@
             android:name=".ui.images.viewimage.PictureViewerActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode|keyboard|layoutDirection"
             android:label="@string/photo"
-            android:screenOrientation="portrait"/>
-        <activity android:name=".ui.pigav.playpigav.PlayPigAvActivity"
+            android:screenOrientation="portrait" />
+        <activity
+            android:name=".ui.pigav.playpigav.PlayPigAvActivity"
             android:configChanges="orientation|screenSize|keyboardHidden|uiMode|keyboard|layoutDirection"
             android:label="@string/pig_av"
-            android:screenOrientation="portrait"
-            />
+            android:screenOrientation="portrait" />
 
         <service android:name=".service.UpdateDownloadService" />
         <service android:name=".service.DownloadVideoService" />
@@ -129,6 +129,10 @@
                 android:name="android.support.FILE_PROVIDER_PATHS"
                 android:resource="@xml/filepaths" />
         </provider>
+
+        <meta-data
+            android:name="android.max_aspect"
+            android:value="2.1" />
 
         <meta-data
             android:name="com.bugsnag.android.API_KEY"

@@ -1,5 +1,6 @@
 package com.u91porn.data.prefs;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.text.TextUtils;
@@ -8,6 +9,7 @@ import android.util.Base64;
 import com.u91porn.di.ApplicationContext;
 import com.u91porn.di.PreferenceInfo;
 import com.u91porn.utils.PlaybackEngine;
+import com.u91porn.utils.SDCardUtils;
 
 import javax.inject.Inject;
 import javax.inject.Singleton;
@@ -16,7 +18,7 @@ import javax.inject.Singleton;
  * @author flymegoc
  * @date 2018/2/12
  */
-
+@SuppressLint("ApplySharedPref")
 @Singleton
 public class AppPreferencesHelper implements PreferencesHelper {
 
@@ -43,6 +45,9 @@ public class AppPreferencesHelper implements PreferencesHelper {
     private final static String KEY_SP_FIRST_TAB_SHOW = "key_sp_first_tab_show";
     private final static String KEY_SP_SECOND_TAB_SHOW = "key_sp_second_tab_show";
     private final static String KEY_SP_SETTING_SCROLLVIEW_SCROLL_POSITION = "key_sp_setting_scrollview_scroll_position";
+    private final static String KEY_SP_OPEN_SKIP_PAGE = "key_sp_open_skip_page";
+    private final static String KEY_SP_CUSTOM_DOWNLOAD_VIDEO_DIR_PATH = "key_sp_custom_download_video_dir_path";
+
 
     private final SharedPreferences mPrefs;
 
@@ -173,7 +178,7 @@ public class AppPreferencesHelper implements PreferencesHelper {
 
     @Override
     public void setOpenHttpProxy(boolean openHttpProxy) {
-        mPrefs.edit().putBoolean(KEY_SP_OPEN_HTTP_PROXY, openHttpProxy).apply();
+        mPrefs.edit().putBoolean(KEY_SP_OPEN_HTTP_PROXY, openHttpProxy).commit();
     }
 
     @Override
@@ -289,5 +294,32 @@ public class AppPreferencesHelper implements PreferencesHelper {
     @Override
     public int getSettingScrollViewScrollPosition() {
         return mPrefs.getInt(KEY_SP_SETTING_SCROLLVIEW_SCROLL_POSITION, 0);
+    }
+
+    @Override
+    public void setOpenSkipPage(boolean openSkipPage) {
+        mPrefs.edit().putBoolean(KEY_SP_OPEN_SKIP_PAGE, openSkipPage).apply();
+    }
+
+    @Override
+    public boolean isOpenSkipPage() {
+        return mPrefs.getBoolean(KEY_SP_OPEN_SKIP_PAGE, false);
+    }
+
+    @Override
+    public void setCustomDownloadVideoDirPath(String customDirPath) {
+        mPrefs.edit().putString(KEY_SP_CUSTOM_DOWNLOAD_VIDEO_DIR_PATH, customDirPath).commit();
+    }
+
+    @Override
+    public String getCustomDownloadVideoDirPath() {
+        String path = mPrefs.getString(KEY_SP_CUSTOM_DOWNLOAD_VIDEO_DIR_PATH, "");
+        if (TextUtils.isEmpty(path)) {
+            return SDCardUtils.DOWNLOAD_VIDEO_PATH;
+        }
+        if (path.endsWith("/")) {
+            return path;
+        }
+        return path + "/";
     }
 }

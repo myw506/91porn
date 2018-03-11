@@ -74,7 +74,7 @@ public class AppDbHelper implements DbHelper {
 
     @Override
     public List<UnLimit91PornItem> loadFinishedData() {
-        return mDaoSession.getUnLimit91PornItemDao().queryBuilder().where(UnLimit91PornItemDao.Properties.Status.eq(FileDownloadStatus.completed), UnLimit91PornItemDao.Properties.DownloadId.notEq(0)).orderDesc(UnLimit91PornItemDao.Properties.FinshedDownloadDate).build().list();
+        return mDaoSession.getUnLimit91PornItemDao().queryBuilder().where(UnLimit91PornItemDao.Properties.Status.eq(FileDownloadStatus.completed), UnLimit91PornItemDao.Properties.DownloadId.notEq(0)).orderDesc(UnLimit91PornItemDao.Properties.FinishedDownloadDate).build().list();
     }
 
     @Override

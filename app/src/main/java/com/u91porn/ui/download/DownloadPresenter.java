@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 
 import com.danikula.videocache.HttpProxyCacheServer;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
+import com.liulishuo.filedownloader.FileDownloader;
 import com.liulishuo.filedownloader.model.FileDownloadStatus;
 import com.liulishuo.filedownloader.util.FileDownloadUtils;
 import com.orhanobut.logger.Logger;
@@ -17,7 +18,6 @@ import com.u91porn.di.PerActivity;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 import com.u91porn.utils.DownloadManager;
-import com.u91porn.utils.SDCardUtils;
 import com.u91porn.utils.VideoCacheFileNameGenerator;
 
 import java.io.File;
@@ -86,7 +86,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
         }
         VideoResult videoResult = tmp.getVideoResult();
         //先检查文件
-        File toFile = new File(tmp.getDownLoadPath());
+        File toFile = new File(tmp.getDownLoadPath(dataManager));
         if (toFile.exists() && toFile.length() > 0) {
             if (downloadListener != null) {
                 downloadListener.onError("已经下载过了，请查看下载目录");
@@ -134,7 +134,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
             return;
         }
         Logger.d("视频连接：" + videoResult.getVideoUrl());
-        String path = SDCardUtils.DOWNLOAD_VIDEO_PATH + unLimit91PornItem.getViewKey() + ".mp4";
+        String path = unLimit91PornItem.getDownLoadPath(dataManager);
         Logger.d(path);
         int id = DownloadManager.getImpl().startDownload(videoResult.getVideoUrl(), path, isDownloadNeedWifi, isForceReDownload);
         if (tmp.getAddDownloadDate() == null) {
@@ -231,6 +231,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
 
     @Override
     public void deleteDownloadingTask(UnLimit91PornItem unLimit91PornItem) {
+        FileDownloader.getImpl().clear(unLimit91PornItem.getDownloadId(), unLimit91PornItem.getDownLoadPath(dataManager));
         unLimit91PornItem.setDownloadId(0);
         dataManager.updateUnLimit91PornItem(unLimit91PornItem);
     }
@@ -265,7 +266,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
      * @param unLimit91PornItem
      */
     private void deleteWithFile(UnLimit91PornItem unLimit91PornItem) {
-        File file = new File(unLimit91PornItem.getDownLoadPath());
+        File file = new File(unLimit91PornItem.getDownLoadPath(dataManager));
         if (file.delete()) {
             unLimit91PornItem.setDownloadId(0);
             dataManager.updateUnLimit91PornItem(unLimit91PornItem);
@@ -301,7 +302,7 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
         }).map(new Function<File, UnLimit91PornItem>() {
             @Override
             public UnLimit91PornItem apply(File fromFile) throws Exception {
-                File toFile = new File(unLimit91PornItem.getDownLoadPath());
+                File toFile = new File(unLimit91PornItem.getDownLoadPath(dataManager));
                 if (toFile.exists() && toFile.length() > 0) {
                     throw new Exception("已经下载过了");
                 } else {
@@ -319,8 +320,8 @@ public class DownloadPresenter extends MvpBasePresenter<DownloadView> implements
             public String apply(UnLimit91PornItem unLimit91PornItem) throws Exception {
                 unLimit91PornItem.setStatus(FileDownloadStatus.completed);
                 unLimit91PornItem.setProgress(100);
-                unLimit91PornItem.setFinshedDownloadDate(new Date());
-                unLimit91PornItem.setDownloadId(FileDownloadUtils.generateId(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath()));
+                unLimit91PornItem.setFinishedDownloadDate(new Date());
+                unLimit91PornItem.setDownloadId(FileDownloadUtils.generateId(unLimit91PornItem.getVideoResult().getVideoUrl(), unLimit91PornItem.getDownLoadPath(dataManager)));
                 dataManager.updateUnLimit91PornItem(unLimit91PornItem);
                 return "下载完成";
             }

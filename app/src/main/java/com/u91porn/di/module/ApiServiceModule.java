@@ -16,6 +16,7 @@ import com.u91porn.data.network.apiservice.Mm99ServiceApi;
 import com.u91porn.data.network.apiservice.NoLimit91PornServiceApi;
 import com.u91porn.data.network.apiservice.PigAvServiceApi;
 import com.u91porn.data.network.apiservice.ProxyServiceApi;
+import com.u91porn.data.prefs.PreferencesHelper;
 import com.u91porn.di.ApplicationContext;
 import com.u91porn.utils.AddressHelper;
 import com.u91porn.utils.CommonHeaderInterceptor;
@@ -84,8 +85,8 @@ public class ApiServiceModule {
 
     @Singleton
     @Provides
-    MyProxySelector providesMyProxySelector(@ApplicationContext Context context, List<Proxy> proxyList) {
-        return new MyProxySelector(proxyList, context);
+    MyProxySelector providesMyProxySelector(List<Proxy> proxyList, PreferencesHelper preferencesHelper) {
+        return new MyProxySelector(proxyList, preferencesHelper);
     }
 
     @Singleton

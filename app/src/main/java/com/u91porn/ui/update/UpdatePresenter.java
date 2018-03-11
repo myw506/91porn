@@ -7,6 +7,7 @@ import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.data.DataManager;
 import com.u91porn.data.model.UpdateVersion;
+import com.u91porn.di.PerActivity;
 import com.u91porn.rxjava.CallBackWrapper;
 
 import javax.inject.Inject;
@@ -19,7 +20,7 @@ import io.reactivex.schedulers.Schedulers;
  * @author flymegoc
  * @date 2017/12/22
  */
-
+@PerActivity
 public class UpdatePresenter extends MvpBasePresenter<UpdateView> implements IUpdate {
 
     private final static String CHECK_UPDATE_URL = "https://github.com/techGay/91porn/blob/master/version.txt";

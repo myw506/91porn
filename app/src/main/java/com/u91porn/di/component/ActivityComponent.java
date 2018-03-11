@@ -20,11 +20,10 @@ import com.u91porn.ui.porn91forum.Forum91IndexFragment;
 import com.u91porn.ui.porn91forum.ForumFragment;
 import com.u91porn.ui.porn91forum.browse91porn.Browse91PornActivity;
 import com.u91porn.ui.porn91video.author.AuthorActivity;
-import com.u91porn.ui.porn91video.common.CommonFragment;
 import com.u91porn.ui.porn91video.index.IndexFragment;
 import com.u91porn.ui.porn91video.play.BasePlayVideo;
-import com.u91porn.ui.porn91video.recentupdates.RecentUpdatesFragment;
 import com.u91porn.ui.porn91video.search.SearchActivity;
+import com.u91porn.ui.porn91video.videolist.VideoListFragment;
 import com.u91porn.ui.proxy.ProxySettingActivity;
 import com.u91porn.ui.setting.SettingActivity;
 import com.u91porn.ui.splash.SplashActivity;
@@ -73,17 +72,15 @@ public interface ActivityComponent {
 
     void inject(HistoryActivity historyActivity);
 
-    void inject(IndexFragment indexFragment);
-
-    void inject(CommonFragment commonFragment);
+    void inject(VideoListFragment videoListFragment);
 
     void inject(PigAvFragment pigAvFragment);
+
+    void inject(IndexFragment indexFragment);
 
     void inject(MeiZiTuFragment meiZiTuFragment);
 
     void inject(Mm99Fragment mm99Fragment);
-
-    void inject(RecentUpdatesFragment recentUpdatesFragment);
 
     void inject(DownloadingFragment downloadingFragment);
 

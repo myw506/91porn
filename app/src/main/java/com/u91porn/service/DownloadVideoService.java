@@ -78,7 +78,7 @@ public class DownloadVideoService extends Service implements DownloadManager.Dow
 
     @Override
     public void complete(BaseDownloadTask task) {
-
+        updateNotification(task, task.getSmallFileSoFarBytes(), task.getSmallFileTotalBytes());
     }
 
     @Override

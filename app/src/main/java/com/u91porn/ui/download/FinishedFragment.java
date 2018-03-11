@@ -105,7 +105,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
                 if (view.getId() == R.id.right_menu_delete && unLimit91PornItem != null) {
                     SwipeItemLayout swipeItemLayout = (SwipeItemLayout) view.getParent();
                     swipeItemLayout.close();
-                    File file = new File(unLimit91PornItem.getDownLoadPath());
+                    File file = new File(unLimit91PornItem.getDownLoadPath(dataManager));
                     if (file.exists()) {
                         showDeleteFileDialog(unLimit91PornItem);
                     } else {
@@ -145,7 +145,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
      * @param unLimit91PornItem item
      */
     private void openMp4File(UnLimit91PornItem unLimit91PornItem) {
-        File file = new File(unLimit91PornItem.getDownLoadPath());
+        File file = new File(unLimit91PornItem.getDownLoadPath(dataManager));
         if (file.exists()) {
             Uri uri;
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
@@ -154,7 +154,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
                 uri = Uri.fromFile(file);
             }
             Intent intent = new Intent(Intent.ACTION_VIEW);
-            intent.setDataAndType(uri, "pigAvVideoUrl/mp4");
+            intent.setDataAndType(uri, "video/mp4");
             intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP);
             intent.addFlags(Intent.FLAG_GRANT_WRITE_URI_PERMISSION);
             intent.addFlags(Intent.FLAG_GRANT_READ_URI_PERMISSION);
@@ -194,7 +194,7 @@ public class FinishedFragment extends MvpFragment<DownloadView, DownloadPresente
     }
 
     @Override
-    public View onCreateView(LayoutInflater inflater, ViewGroup container,
+    public View onCreateView(@NonNull LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         // Inflate the layout for this fragment
 

@@ -244,3 +244,9 @@ public static java.lang.String TABLENAME;
 ### Safe Java-JS WebView Bridge ###
 -keepclassmembers class com.u91porn.data.model.HostJsScope$RetJavaObj{ *; }
 -keepclassmembers class com.u91porn.data.model.HostJsScope{ *; }
+
+### AndroidPicker https://github.com/gzu-liyujiang/AndroidPicker
+-keepattributes InnerClasses,Signature
+-keepattributes *Annotation*
+
+-keep class cn.qqtheme.framework.entity.** { *;}

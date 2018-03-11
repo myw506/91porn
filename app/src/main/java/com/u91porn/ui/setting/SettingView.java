@@ -9,9 +9,15 @@ import com.qmuiteam.qmui.widget.grouplist.QMUICommonListItemView;
  */
 
 public interface SettingView extends MvpView {
-    void showTesting(boolean isTest);
+    void showTestingAddressDialog(boolean isTest);
 
-    void testSuccess(String message, QMUICommonListItemView qmuiCommonListItemView, String key);
+    void testNewAddressSuccess(String message, QMUICommonListItemView qmuiCommonListItemView, String key);
 
-    void testFailure(String message,QMUICommonListItemView qmuiCommonListItemView,String key);
+    void testNewAddressFailure(String message, QMUICommonListItemView qmuiCommonListItemView, String key);
+
+    void beginMoveOldDirDownloadVideoToNewDir();
+
+    void setNewDownloadVideoDirSuccess(String message);
+
+    void setNewDownloadVideoDirError(String message);
 }

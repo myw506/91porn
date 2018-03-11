@@ -13,4 +13,10 @@ public interface ISetting {
     void test91PornForum(String baseUrl, QMUICommonListItemView qmuiCommonListItemView, String key);
 
     void testPigAv(String baseUrl, QMUICommonListItemView qmuiCommonListItemView, String key);
+
+    boolean isHaveUnFinishDownloadVideo();
+
+    boolean isHaveFinishDownloadVideoFile();
+
+    void moveOldDownloadVideoToNewDir(String newDirPath, QMUICommonListItemView qmuiCommonListItemView);
 }

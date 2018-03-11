@@ -97,4 +97,12 @@ public interface PreferencesHelper {
     void setSettingScrollViewScrollPosition(int position);
 
     int getSettingScrollViewScrollPosition();
+
+    void setOpenSkipPage(boolean openSkipPage);
+
+    boolean isOpenSkipPage();
+
+    void setCustomDownloadVideoDirPath(String customDirPath);
+
+    String getCustomDownloadVideoDirPath();
 }

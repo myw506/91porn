@@ -2,6 +2,7 @@ package com.u91porn.ui.proxy;
 
 import android.arch.lifecycle.Lifecycle;
 import android.support.annotation.NonNull;
+import android.text.TextUtils;
 
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
@@ -10,6 +11,8 @@ import com.u91porn.data.model.BaseResult;
 import com.u91porn.data.model.ProxyModel;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
+import com.u91porn.utils.AddressHelper;
+import com.u91porn.utils.MyProxySelector;
 import com.u91porn.utils.RegexUtils;
 import com.u91porn.utils.constants.Constants;
 
@@ -33,16 +36,21 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
     private int totalPage = 1;
     private int page = 1;
     private DataManager dataManager;
+    private MyProxySelector myProxySelector;
+    private AddressHelper addressHelper;
 
     @Inject
-    public ProxyPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager) {
+    public ProxyPresenter(LifecycleProvider<Lifecycle.Event> provider, DataManager dataManager, MyProxySelector myProxySelector, AddressHelper addressHelper) {
         this.provider = provider;
         this.dataManager = dataManager;
+        this.myProxySelector = myProxySelector;
+        this.addressHelper = addressHelper;
     }
 
     @Override
     public void testProxy(String proxyIpAddress, int proxyPort) {
         if (RegexUtils.isIP(proxyIpAddress) && proxyPort < Constants.PROXY_MAX_PORT && proxyPort > 0) {
+            myProxySelector.setTest(true, proxyIpAddress, proxyPort);
             dataManager.testPorn91VideoAddress()
                     .compose(RxSchedulersHelper.<String>ioMainThread())
                     .subscribe(new CallBackWrapper<String>() {
@@ -91,7 +99,7 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
     }
 
     @Override
-    public void parseGouBanJia(final boolean pullToRefresh) {
+    public void parseXiCiDaiLi(final boolean pullToRefresh) {
         if (pullToRefresh) {
             page = 1;
         }
@@ -126,7 +134,7 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
                             @Override
                             public void run(@NonNull ProxyView view) {
                                 if (page == 1) {
-                                    view.parseGouBanJiaSuccess(proxyModels);
+                                    view.parseXiCiDaiLiSuccess(proxyModels);
                                     view.showContent();
                                 } else {
                                     view.setMoreData(proxyModels);
@@ -156,5 +164,15 @@ public class ProxyPresenter extends MvpBasePresenter<ProxyView> implements IProx
                     }
                 });
 
+    }
+
+    @Override
+    public boolean isSetPorn91VideoAddress() {
+        return TextUtils.isEmpty(addressHelper.getVideo91PornAddress());
+    }
+
+    @Override
+    public void exitTest() {
+        myProxySelector.setTest(false, null, 0);
     }
 }

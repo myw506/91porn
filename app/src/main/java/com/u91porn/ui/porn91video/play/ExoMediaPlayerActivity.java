@@ -57,7 +57,7 @@ public class ExoMediaPlayerActivity extends BasePlayVideo implements OnPreparedL
         }
         //加载本地下载好的视频
         if (unLimit91PornItem.getStatus() == FileDownloadStatus.completed) {
-            File downloadFile = new File(unLimit91PornItem.getDownLoadPath());
+            File downloadFile = new File(unLimit91PornItem.getDownLoadPath(dataManager));
             if (downloadFile.exists()) {
                 videoPlayer.setVideoPath(downloadFile.getAbsolutePath());
             } else {

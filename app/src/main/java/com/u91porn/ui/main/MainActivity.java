@@ -28,24 +28,22 @@ import com.qmuiteam.qmui.widget.dialog.QMUIDialogAction;
 import com.sdsmdg.tastytoast.TastyToast;
 import com.u91porn.BuildConfig;
 import com.u91porn.R;
-import com.u91porn.data.DataManager;
 import com.u91porn.data.model.Notice;
 import com.u91porn.data.model.UpdateVersion;
 import com.u91porn.eventbus.LowMemoryEvent;
 import com.u91porn.service.UpdateDownloadService;
 import com.u91porn.ui.MvpActivity;
 import com.u91porn.ui.basemain.BaseMainFragment;
+import com.u91porn.ui.download.DownloadActivity;
 import com.u91porn.ui.images.Main99MmFragment;
 import com.u91porn.ui.images.MainMeiZiTuFragment;
 import com.u91porn.ui.mine.MineFragment;
 import com.u91porn.ui.music.MusicFragment;
-import com.u91porn.ui.notice.NoticePresenter;
 import com.u91porn.ui.pigav.MainPigAvFragment;
 import com.u91porn.ui.porn91forum.Main91ForumFragment;
 import com.u91porn.ui.porn91video.Main91PronVideoFragment;
 import com.u91porn.ui.porn91video.search.SearchActivity;
 import com.u91porn.ui.setting.SettingActivity;
-import com.u91porn.ui.update.UpdatePresenter;
 import com.u91porn.ui.user.UserLoginActivity;
 import com.u91porn.utils.ApkVersionUtils;
 import com.u91porn.utils.FragmentUtils;
@@ -107,16 +105,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
     private boolean isBackground = false;
 
     @Inject
-    protected UpdatePresenter updatePresenter;
-
-    @Inject
-    protected NoticePresenter noticePresenter;
-
-    @Inject
     MainPresenter mainPresenter;
-
-    @Inject
-    DataManager dataManager;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -172,11 +161,12 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
         }
     }
 
-    private void showVideoBottomSheet(int checkIndex) {
+    private void showVideoBottomSheet(final int checkIndex) {
         new QMUIBottomSheet.BottomListSheetBuilder(this, true)
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_search_black_24dp), "搜索91视频")
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_video_library_black_24dp), "91视频")
                 .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_video_library_black_24dp), "朱古力视频")
+                .addItem(ResourceUtil.getDrawable(this, R.drawable.ic_file_download_black_24dp), "我的下载")
                 .setCheckedIndex(checkIndex)
                 .setOnSheetItemClickListener(new QMUIBottomSheet.BottomListSheetBuilder.OnSheetItemClickListener() {
                     @Override
@@ -185,6 +175,10 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                         switch (position) {
                             case 0:
                                 goToSearchVideo();
+                                break;
+                            case 3:
+                                Intent intent = new Intent(context, DownloadActivity.class);
+                                startActivityWithAnimotion(intent);
                                 break;
                             default:
                                 handlerFirstTabClickToShow(position, selectIndex, true);
@@ -226,6 +220,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
 
                                 break;
                             case 1:
+                                showMessage("还未支持，敬请期待", TastyToast.INFO);
                                 break;
                             default:
                         }
@@ -372,6 +367,9 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
                 dataManager.setMainSecondTabShow(MM_99);
                 mMaiMeiZiTuFragment = null;
                 break;
+            case 2:
+                showMessage("还未支持，敬请期待", TastyToast.INFO);
+                break;
             default:
         }
     }
@@ -505,6 +503,7 @@ public class MainActivity extends MvpActivity<MainView, MainPresenter> implement
             lastClickTime = currentTime;
         } else {
             FileDownloader.getImpl().pauseAll();
+            FileDownloader.getImpl().unBindService();
             //没啥意义
             if (!existActivityWithAnimation) {
                 super.onBackPressed();

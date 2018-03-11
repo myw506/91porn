@@ -7,6 +7,7 @@ import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.trello.rxlifecycle2.LifecycleProvider;
 import com.u91porn.data.DataManager;
 import com.u91porn.data.model.Notice;
+import com.u91porn.di.PerActivity;
 import com.u91porn.rxjava.CallBackWrapper;
 import com.u91porn.rxjava.RxSchedulersHelper;
 
@@ -16,7 +17,7 @@ import javax.inject.Inject;
  * @author flymegoc
  * @date 2018/1/26
  */
-
+@PerActivity
 public class NoticePresenter extends MvpBasePresenter<NoticeView> implements INotice {
 
     private final static String CHECK_NEW_NOTICE_URL = "https://github.com/techGay/91porn/blob/master/notice.txt";

@@ -5,6 +5,7 @@ import android.support.annotation.NonNull;
 import com.hannesdorfmann.mosby3.mvp.MvpBasePresenter;
 import com.u91porn.data.model.Notice;
 import com.u91porn.data.model.UpdateVersion;
+import com.u91porn.di.PerActivity;
 import com.u91porn.ui.notice.NoticePresenter;
 import com.u91porn.ui.update.UpdatePresenter;
 
@@ -14,7 +15,7 @@ import javax.inject.Inject;
  * @author flymegoc
  * @date 2017/12/23
  */
-
+@PerActivity
 public class MainPresenter extends MvpBasePresenter<MainView> implements IMain {
 
     private UpdatePresenter updatePresenter;
